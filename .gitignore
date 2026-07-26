@@ -1,0 +1,7 @@
+# deps
+node_modules/
+
+# experimental files
+src/experiments/file-search.ts
+src/experiments/new-file-search.ts
+src/experiments/new-file-search-02.ts
