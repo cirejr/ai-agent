@@ -3,6 +3,8 @@ import fileSearch from "../tools/file-search";
 import readFile from "../tools/read-file";
 import writeFile from "../tools/write-file";
 import editFile from "../tools/edit-file";
+import { glob } from "../tools/glob";
+import grep from "../tools/grep";
 
 /*
 const files = (await fileSearch({
@@ -14,7 +16,7 @@ const files = (await fileSearch({
 
 //const content = fileTxt as string
 
-const res = await editFile({
+/* const res = await editFile({
   path: "src/experiments/new-file-search.ts",
   startLine: 15,
   endLine: 23,
@@ -42,7 +44,16 @@ const res = await editFile({
   }`
 })
 
-console.log("response from edit", res)
+console.log("response from edit", res) */
+
+//const result = await glob("**/package.json")
+const result = await grep({
+  pattern: `export default async function`,
+  dir: ".",
+  recursive: true,
+})
+
+console.log("results", result)
 
 /* const newFile = await writeFile({ path: "src/experiments/new-file-search-02.ts", content })
 console.log("new file", await newFile) */
