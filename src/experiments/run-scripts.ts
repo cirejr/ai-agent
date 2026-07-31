@@ -1,10 +1,10 @@
 import { BunFile } from "bun";
-import fileSearch from "../tools/file-search";
 import readFile from "../tools/read-file";
 import writeFile from "../tools/write-file";
 import editFile from "../tools/edit-file";
 import { glob } from "../tools/glob";
 import grep from "../tools/grep";
+import { bash } from "../tools/bash";
 
 /*
 const files = (await fileSearch({
@@ -47,13 +47,16 @@ const files = (await fileSearch({
 console.log("response from edit", res) */
 
 //const result = await glob("**/package.json")
-const result = await grep({
+/* const result = await grep({
   pattern: `export default async function`,
   dir: ".",
   recursive: true,
 })
 
-console.log("results", result)
+console.log("results", result) */
+
+const test = await bash({ command: ["grep", "-r", "export default function"], dir: "src/" })
+console.log("test", test)
 
 /* const newFile = await writeFile({ path: "src/experiments/new-file-search-02.ts", content })
 console.log("new file", await newFile) */

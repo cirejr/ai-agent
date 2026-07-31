@@ -4,8 +4,7 @@ export function replaceContent(startLine:number, endLine: number, newContent:str
   const lines = rawText.split("\n")
   const newContentLines = newContent.split("\n")
 
-  lines.splice((startLine - 1), deleteCount)
-  lines.splice((startLine - 1), 0, ...newContentLines)
+  lines.splice((startLine - 1), deleteCount, ...newContent)
 
   const newRawContent = lines.join("\n")
 
