@@ -5,19 +5,17 @@ interface GrepTypes{
   pattern: string;
   dir: string;
 
-  recursive?: boolean;
   caseSensitive?: boolean;
 
   excludeDirs?: string[]
   includeExtensions?: string[]
 }
 
-export default async function grep({pattern, dir, recursive, caseSensitive=false, excludeDirs, includeExtensions}: GrepTypes) {
+export default async function grep({pattern, dir, caseSensitive=false, excludeDirs, includeExtensions}: GrepTypes) {
   try {
 
     let flags = []
 
-    recursive && flags.push("-r")
     !caseSensitive && flags.push("-i")
     if(excludeDirs){
       for (const dir of excludeDirs) {
@@ -30,7 +28,7 @@ export default async function grep({pattern, dir, recursive, caseSensitive=false
       }
     }
 
-    const results = await $`grep -n ${flags} ${pattern} ${dir}`.text()
+    const results = await $`grep -rn ${flags} ${pattern} ${dir}`.text()
     const matches = parseGrepResult(results)
     return matches
 

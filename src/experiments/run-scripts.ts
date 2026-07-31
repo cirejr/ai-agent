@@ -55,7 +55,7 @@ console.log("response from edit", res) */
 
 console.log("results", result) */
 
-const test = await bash({ command: ["grep", "-r", "export default function"], dir: "src/" })
+const test = await bash({ command: ["git", "status"], dir: "." })
 console.log("test", test)
 
 /* const newFile = await writeFile({ path: "src/experiments/new-file-search-02.ts", content })
