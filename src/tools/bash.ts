@@ -1,4 +1,4 @@
-import { runProcess } from "../lib/utilities/run-process";
+import { runProcess } from "@/lib/utilities/run-process";
 
 interface BashTypes{
   command: string[];

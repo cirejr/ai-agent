@@ -55,8 +55,11 @@ console.log("response from edit", res) */
 
 console.log("results", result) */
 
-const test = await bash({ command: ["git", "status"], dir: "." })
-console.log("test", test)
+/* const test = await bash({ command: ["git", "status"], dir: "." })
+console.log("test", test) */
 
 /* const newFile = await writeFile({ path: "src/experiments/new-file-search-02.ts", content })
 console.log("new file", await newFile) */
+
+const results = await glob("**/*.ts")
+console.log("results", results)

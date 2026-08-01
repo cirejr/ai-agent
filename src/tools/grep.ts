@@ -1,5 +1,5 @@
 import { $ } from "bun"
-import { parseGrepResult } from "../lib/utilities/parse-grep-result";
+import { parseGrepResult } from "@/lib/utilities/parse-grep-result";
 
 interface GrepTypes{
   pattern: string;

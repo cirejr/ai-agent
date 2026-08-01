@@ -1,4 +1,4 @@
-import { replaceContent } from "../lib/utilities/replace-content"
+import { replaceContent } from "@/lib/utilities/replace-content"
 
 interface editFileTypes {
   path: string,
