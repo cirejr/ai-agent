@@ -3,6 +3,11 @@
   "name": "@erwin/server",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "export": {
+    "." : ".src/index.ts",
+    "./*": ".src/*.ts"
+  },
   "dependencies": {
     "@ai-sdk/google": "^4.0.31",
     "@openrouter/ai-sdk-provider": "^3.0.0",
