@@ -1,7 +1,7 @@
-import { ModelMessage, streamText, isStepCount } from 'ai';
+import { type ModelMessage, streamText, isStepCount } from 'ai';
 import * as readline from 'node:readline/promises';
 import { google } from '@ai-sdk/google';
-import { tools } from '@/tools/tool';
+import { tools } from '@/tool/tool';
 
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
