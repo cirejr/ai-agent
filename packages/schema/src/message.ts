@@ -12,20 +12,26 @@ type ReasoningPart = {
   content: string
 }
 
+
+type ToolCall = {
+  toolCallId: string;
+  name: string;
+  arguments: Record<string, unknown>
+}
+
 type ToolCallPart = ToolCall & {
-  kind: "toolCall"
+  kind: "tool-call"
 }
 
-type ToolResult = {
-  kind: "ToolResult"
+type ToolResultPart = {
+  kind: "tool-result"
+  toolCallId: string;
   status: "success" | "error",
-  payload: {
-    toolCallId: string;
-    content: Record<string, unknown>
-  }
+  content?: Record<string, unknown>
+  error?: string
 }
 
-type Attachment = {
+type AttachmentPart = {
   kind: "media"
   id: string;
   type: "image" | "document" | "audio"
@@ -37,16 +43,42 @@ type Attachment = {
   uploadProgress: number
 }
 
-type ToolCall = {
-  toolCallId: string;
-  name: string;
-  arguments: Record<string, unknown>
-}
 
-type Part = TextPart | ToolCallPart | ReasoningPart | Attachment | ToolResult
+type Part = TextPart | ToolCallPart | ReasoningPart | AttachmentPart | ToolResultPart
 
-type Message = {
+type Message = UserMessage | SystemMessage | AssistantMessage | ToolMessage
+
+type BaseMessage = {
   id: string;
-  role: Role
-  content: Part[]
+  role : Role
 }
+
+type UserMessage = {
+  id: string;
+  role: "user",
+  content: UserPart[]
+}
+
+type SystemMessage = {
+  id: string;
+  role: "system",
+  content: TextPart
+}
+
+type AssistantMessage = {
+  id: string;
+  role: "assistant",
+  content: AssistantPart[]
+}
+
+type ToolMessage = {
+  id: string;
+  role: "tool",
+  content: ToolPart[]
+}
+
+type UserPart = TextPart | AttachmentPart
+type AssistantPart = TextPart | ToolCallPart | ReasoningPart
+type ToolPart = ToolResultPart
+
+export type { AssistantMessage, AssistantPart, AttachmentPart, BaseMessage, Message, MessageHistory, Part, ReasoningPart, Role, SystemMessage, TextPart, ToolCall, ToolCallPart, ToolMessage, ToolPart, ToolResultPart, UserMessage, UserPart}

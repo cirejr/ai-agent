@@ -1,0 +1,21 @@
+export type {
+  AssistantMessage,
+  AssistantPart,
+  AttachmentPart,
+  BaseMessage,
+  Message,
+  MessageHistory,
+  Part,
+  ReasoningPart,
+  Role,
+  SystemMessage,
+  TextPart,
+  ToolCall,
+  ToolCallPart,
+  ToolMessage,
+  ToolPart,
+  ToolResultPart,
+  UserMessage,
+  UserPart,
+} from "./message";
+export type { AnyToolDescriptor, Schema, ToolDescriptor } from "./tool-descriptor";
