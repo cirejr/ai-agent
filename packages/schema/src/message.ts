@@ -3,55 +3,56 @@ type Role = "system" | "user" | "assistant" | "tool"
 type MessageHistory = Message[]
 
 type TextPart = {
-  kind: "text"
-  content: string;
+  type: "text"
+  text: string;
 }
 
 type ReasoningPart = {
-  kind: "reasoning",
-  content: string
+  type: "reasoning",
+  text: string
 }
 
-
-type ToolCall = {
+type ToolCallPart = {
+  type: "tool-call",
   toolCallId: string;
   name: string;
   arguments: Record<string, unknown>
 }
 
-type ToolCallPart = ToolCall & {
-  kind: "tool-call"
+type ToolResultValue = {
+  type: "json"
+  value: unknown
+} | {
+  type: "text"
+  value: unknown
+} | {
+  type: "error"
+  value: unknown
+} | {
+  type: "content"
+  value: unknown[]
 }
 
 type ToolResultPart = {
-  kind: "tool-result"
+  type: "tool-result"
   toolCallId: string;
-  status: "success" | "error",
-  content?: Record<string, unknown>
-  error?: string
+  name: string,
+  result: ToolResultValue
 }
 
-type AttachmentPart = {
-  kind: "media"
+type MediaPart = {
+  type: "media"
   id: string;
-  type: "image" | "document" | "audio"
   name: string;
   url: string;
   mimeType: string;
   sizeBytes?: number;
-
-  uploadProgress: number
 }
 
 
-type Part = TextPart | ToolCallPart | ReasoningPart | AttachmentPart | ToolResultPart
+type Part = TextPart | ToolCallPart | ReasoningPart | MediaPart | ToolResultPart
 
 type Message = UserMessage | SystemMessage | AssistantMessage | ToolMessage
-
-type BaseMessage = {
-  id: string;
-  role : Role
-}
 
 type UserMessage = {
   id: string;
@@ -62,7 +63,7 @@ type UserMessage = {
 type SystemMessage = {
   id: string;
   role: "system",
-  content: TextPart
+  content: TextPart[]
 }
 
 type AssistantMessage = {
@@ -77,8 +78,25 @@ type ToolMessage = {
   content: ToolPart[]
 }
 
-type UserPart = TextPart | AttachmentPart
+type UserPart = TextPart | MediaPart
 type AssistantPart = TextPart | ToolCallPart | ReasoningPart
 type ToolPart = ToolResultPart
 
-export type { AssistantMessage, AssistantPart, AttachmentPart, BaseMessage, Message, MessageHistory, Part, ReasoningPart, Role, SystemMessage, TextPart, ToolCall, ToolCallPart, ToolMessage, ToolPart, ToolResultPart, UserMessage, UserPart}
+export type {
+  AssistantMessage,
+  AssistantPart,
+  MediaPart,
+  Message,
+  MessageHistory,
+  Part,
+  ReasoningPart,
+  Role,
+  SystemMessage,
+  TextPart,
+  ToolCallPart,
+  ToolMessage,
+  ToolPart,
+  ToolResultPart,
+  UserMessage,
+  UserPart
+}

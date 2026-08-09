@@ -1,8 +1,6 @@
 export type {
   AssistantMessage,
   AssistantPart,
-  AttachmentPart,
-  BaseMessage,
   Message,
   MessageHistory,
   Part,
@@ -10,7 +8,6 @@ export type {
   Role,
   SystemMessage,
   TextPart,
-  ToolCall,
   ToolCallPart,
   ToolMessage,
   ToolPart,
