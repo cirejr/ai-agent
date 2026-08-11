@@ -9,10 +9,12 @@ type TextPart = {
 
 type ReasoningPart = {
   type: "reasoning",
+  id?: string,
   text: string
 }
 
 type ToolCallPart = {
+  id?: string,
   type: "tool-call",
   toolCallId: string;
   name: string;
@@ -34,6 +36,7 @@ type ToolResultValue = {
 }
 
 type ToolResultPart = {
+  id?: string,
   type: "tool-result"
   toolCallId: string;
   name: string,
@@ -46,7 +49,8 @@ type MediaPart = {
   name: string;
   url: string;
   mimeType: string;
-  sizeBytes?: number;
+  data: string // Base64 encoded data
+  audioFormat: "mp3" | "wav"
 }
 
 
@@ -69,6 +73,7 @@ type SystemMessage = {
 type AssistantMessage = {
   id: string;
   role: "assistant",
+  status?: "completed" | "in_progress" | "failed"
   content: AssistantPart[]
 }
 

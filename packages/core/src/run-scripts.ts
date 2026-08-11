@@ -8,6 +8,9 @@ import { bash } from "./tool/bash";
 import {registry} from "./registry/tool-registry";
 import z from "zod";
 import type { AnyToolDescriptor, ToolDescriptor } from "@erwin/schema";
+import getMediaCategory from "./llm/utils/media-category";
+import { toProviderInput } from "./llm/protocols/openrouter-request";
+import { test04 } from "./llm/tests/constants";
 
 /*
 const files = (await fileSearch({
@@ -66,7 +69,7 @@ console.log("new file", await newFile) */
 
 //const results = await glob("**/*.ts")
 //console.log("results", results)
-
+/*
 interface GrepTypes{
   pattern: string;
   dir: string;
@@ -126,3 +129,6 @@ console.log(registry.list())
 
 console.log("has read_file", registry.get("read_file")?.name)
 console.log("has read_file", registry.get("grep")?.name)
+ */
+
+ console.log("provider input", toProviderInput(test04.messagesWTO))
