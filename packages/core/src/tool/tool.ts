@@ -1,9 +1,9 @@
 import { tool } from "ai";
 import z from "zod";
 
-import grep from "./grep";
-import readFile from "./read-file";
-import editFile from "./edit-file";
+import { grep } from "./grep";
+import { readFile } from "./read-file";
+import { editFile } from "./edit-file";
 import { glob } from "./glob";
 import { bash } from "./bash";
 

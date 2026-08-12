@@ -25,7 +25,7 @@ and turn it into string like =>
 // "Then adjust index issues"
 
 
-export default function addLineNumber(content: string) {
+export function addLineNumber(content: string) {
   const strToArray = content.split("\n")
   const numberToLineArray = strToArray.map((line, idx) => `${idx + 1} | ${line}`)
   const strWithNumber = numberToLineArray.join("\n")

@@ -13,7 +13,7 @@ interface editFileTypes {
 // extract exact piece, change the content, and replace it
 //
 
-export default async function editFile({ path, startLine, endLine, content = "" }: editFileTypes) {
+export async function editFile({ path, startLine, endLine, content = "" }: editFileTypes) {
   try {
     if (!path || !startLine || !endLine) {
       return { errorMessage: "Missing Mandatory params"}

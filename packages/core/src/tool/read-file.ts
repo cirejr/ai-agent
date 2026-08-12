@@ -1,6 +1,6 @@
-import addLineNumber from "@/lib/utilities/add-line-number";
+import { addLineNumber } from "@/lib/utilities/add-line-number";
 
-export default async function readFile(filePath: string) {
+export async function readFile(filePath: string) {
   try {
     const file = await Bun.file(filePath);
     const fileWithLines = addLineNumber(await file.text())

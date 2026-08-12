@@ -3,7 +3,7 @@ interface WriteFileTypes {
   content: string;
 }
 
-export default async function writeFile({ path, content }: WriteFileTypes) {
+export async function writeFile({ path, content }: WriteFileTypes) {
   try {
     if (!path) {
       return { errorMessage: "No file path was provided, please provide one" };

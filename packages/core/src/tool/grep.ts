@@ -11,7 +11,7 @@ interface GrepTypes{
   includeExtensions?: string[]
 }
 
-export default async function grep({pattern, dir, caseSensitive=false, excludeDirs, includeExtensions}: GrepTypes) {
+export async function grep({pattern, dir, caseSensitive=false, excludeDirs, includeExtensions}: GrepTypes) {
   try {
 
     let flags = []

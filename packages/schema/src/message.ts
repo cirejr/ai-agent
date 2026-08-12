@@ -47,12 +47,9 @@ type MediaPart = {
   type: "media"
   id: string;
   name: string;
-  url: string;
   mimeType: string;
-  data: string // Base64 encoded data
-  audioFormat: "mp3" | "wav"
+  data: string | Uint8Array // string either Base64 encoded data or dataUrl => data:mimeType+base64
 }
-
 
 type Part = TextPart | ToolCallPart | ReasoningPart | MediaPart | ToolResultPart
 

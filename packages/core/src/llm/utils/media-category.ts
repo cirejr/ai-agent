@@ -1,6 +1,6 @@
 export type MediaCategory = "image" | "audio" | "video" | "file"
 
-export default function getMediaCategory(mimeType: string): MediaCategory {
+export function getMediaCategory(mimeType: string): MediaCategory {
   const type = mimeType.trim().toLowerCase();
 
   if (type.startsWith("image/")) return "image"

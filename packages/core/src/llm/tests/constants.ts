@@ -1,10 +1,18 @@
 import type { Message } from "@erwin/schema"
-import type { Input } from "../protocols/openrouter-request"
+import type { Input } from "../protocols/openai-request"
 
 export const test01 = {
-  messages : [
+  messages: [
+    {
+      id: 'msg_00',
+      role: "system",
+      content: [{
+        type: "text",
+        text: "Your a personal assistant, help me"
+      }]
+  },
   {
-    id: 'fc_01',
+    id: 'msg_01',
     role: "user",
     content: [{
       type: "text",
@@ -12,8 +20,9 @@ export const test01 = {
     }]
   },
   {
-    id: "fc_02",
+    id: "msg_02",
     role: "assistant",
+    status: "completed",
     content: [{
       type: "text",
       text: "Yes, Hi what can I do for you"
@@ -21,6 +30,14 @@ export const test01 = {
   }
   ] as Message[],
   providerInput: [
+    {
+      type: "message",
+      role: "system",
+      content: [{
+        type: "input_text",
+        text: "Your a personal assistant, help me"
+      }]
+  },
   {
     type: "message",
     role: "user",
@@ -32,8 +49,8 @@ export const test01 = {
   {
     type: 'message',
     role: 'assistant',
-    id: 'fc_02',
-    status: "in_progress",
+    id: 'msg_02',
+    status: "completed",
     content: [{
       type: "output_text",
       text: "Yes, Hi what can I do for you"
@@ -42,11 +59,10 @@ export const test01 = {
 ] as Input[]
 }
 
-
 export const test02 = {
   messagesWTC: [
   {
-    id: 'fc_01',
+    id: 'msg_01',
     role: "user",
     content: [{
       type: "text",
@@ -54,18 +70,20 @@ export const test02 = {
     }]
   },
   {
-    id: "fc_02",
+    id: "msg_02",
     role: "assistant",
+    status: "completed",
     content: [{
       type: "text",
       text: "Hi, yes sure!"
     }]
   },
   {
-    id: "fc_03",
+    id: "msg_03",
     role: "assistant",
     content: [
       {
+        id: "fc_01",
         type: "tool-call",
         toolCallId: "tc_01",
         name: "get_wheather",
@@ -88,8 +106,8 @@ export const test02 = {
   {
     type: 'message',
     role: 'assistant',
-    id: 'fc_02',
-    status: "in_progress",
+    id: 'msg_02',
+    status: "completed",
     content: [{
       type: "output_text",
       text: "Hi, yes sure!"
@@ -97,7 +115,7 @@ export const test02 = {
   },
   {
     type: "function_call",
-    id: 'fc_03',
+    id: 'fc_01',
     call_id: "tc_01",
     name: "get_wheather",
     arguments: "{\"city\":\"dakar\"}"
@@ -108,7 +126,7 @@ export const test02 = {
 export const test03 = {
   messagesWTO: [
   {
-    id: 'fc_01',
+    id: 'msg_01',
     role: "user",
     content: [{
       type: "text",
@@ -116,18 +134,20 @@ export const test03 = {
     }]
   },
   {
-    id: "fc_02",
+    id: "msg_02",
     role: "assistant",
+    status: "completed",
     content: [{
       type: "text",
       text: "Hi, yes sure!"
     }]
   },
   {
-    id: "fc_03",
+    id: "msg_03",
     role: "assistant",
     content: [
       {
+        id: "fc_01",
         type: "tool-call",
         toolCallId: "tc_01",
         name: "get_wheather",
@@ -142,6 +162,7 @@ export const test03 = {
     role: "tool",
     content: [
       {
+        id:"fc_output_1",
         type: "tool-result",
         toolCallId: "tc_01",
         name: "get_wheather",
@@ -165,8 +186,8 @@ export const test03 = {
   {
     type: 'message',
     role: 'assistant',
-    id: 'fc_02',
-    status: "in_progress",
+    id: 'msg_02',
+    status: "completed",
     content: [{
       type: "output_text",
       text: "Hi, yes sure!"
@@ -174,7 +195,7 @@ export const test03 = {
   },
   {
     type: "function_call",
-    id: 'fc_03',
+    id: 'fc_01',
     call_id: "tc_01",
     name: "get_wheather",
     arguments: "{\"city\":\"dakar\"}"
@@ -191,7 +212,6 @@ export const test03 = {
 export const test04 = {
   messagesWTO: [
     {
-      id: 'msg_01',
       role: "system",
       content: [{
         type: "text",
@@ -209,14 +229,16 @@ export const test04 = {
   {
     id: "msg_02",
     role: "assistant",
+    status: "completed",
     content: [
       {
       type: "text",
       text: "Hi, yes sure!"
     },
-    {
+      {
+      id: "fc_01",
       type: "tool-call",
-      toolCallId: "tc_02",
+      toolCallId: "tc_01",
       name: "glob",
       arguments: {
         pattern: "**/package.json",
@@ -229,8 +251,9 @@ export const test04 = {
     role: "assistant",
     content: [
       {
+        id: "fc_02",
         type: "tool-call",
-        toolCallId: "tc_01",
+        toolCallId: "tc_02",
         name: "get_wheather",
         arguments: {
           city: "dakar",
@@ -243,8 +266,9 @@ export const test04 = {
     role: "tool",
     content: [
       {
+        id: "fc_output_1",
         type: "tool-result",
-        toolCallId: "tc_01",
+        toolCallId: "tc_02",
         name: "get_wheather",
         result: {
           type: "json",
@@ -255,6 +279,14 @@ export const test04 = {
   },
   ] as Message[],
   providerInputWTO: [
+    {
+      type: "message",
+      role: "system",
+      content: [{
+        type: "input_text",
+        text: "you're a senior dev"
+      }]
+  },
   {
     type: "message",
     role: "user",
@@ -266,8 +298,8 @@ export const test04 = {
   {
     type: 'message',
     role: 'assistant',
-    id: 'fc_02',
-    status: "in_progress",
+    id: 'msg_02',
+    status: "completed",
     content: [{
       type: "output_text",
       text: "Hi, yes sure!"
@@ -275,23 +307,95 @@ export const test04 = {
     },
     {
       type: "function_call",
-      id: 'fc_03',
-      call_id: "tc_02",
+      id: 'fc_01',
+      call_id: "tc_01",
       name:"glob",
       arguments: "{\"pattern\":\"**/package.json\"}"
     },
   {
     type: "function_call",
-    id: 'fc_03',
-    call_id: "tc_01",
+    id: 'fc_02',
+    call_id: "tc_02",
     name: "get_wheather",
     arguments: "{\"city\":\"dakar\"}"
   },
   {
     type: 'function_call_output',
     id: 'fc_output_1',
-    call_id: 'tc_01',
+    call_id: 'tc_02',
     output: JSON.stringify({ temperature: '39°C', condition: 'Sunny' }),
   },
 ] as Input[]
+}
+
+export const test05 = {
+  messagesWR: [
+    {
+      id: "msg_01",
+      role: "user",
+      content: [
+        {
+          type: "text",
+          text: "Please read the content of this file and provide me with a resume that matches it"
+         },
+        {
+        type: "media",
+        id: "md_01",
+        mimeType: "application/pdf",
+        name: "react-job-offer.pdf"
+      }]
+    },
+  {
+    id: "msg_02",
+    role: "assistant",
+    status: "completed",
+    content: [
+      {
+        type: "reasoning",
+        id: "rs_01",
+        text: "Okay, Let's first see. By the name of the file, this looks like a job offer for a react role. Yes it seems I am correct. "
+      },
+      {
+        type: "text",
+        text: "This is a react job offer, so here is a resume tailored to the offer"
+      }
+    ]
+  }
+  ] as Message[],
+  providerInputWR: [
+    {
+      type: "message",
+      role: "user",
+      content: [
+        {
+          type: "input_text",
+          text: "Please read the content of this file and provide me with a resume that matches it"
+        },
+        {
+          type: "input_file",
+          file_id: "md_01",
+          filename: "react-job-offer.pdf"
+        }
+      ]
+    },
+    {
+      type: "reasoning",
+      id: "rs_01",
+      status: "completed",
+      summary: [{
+        type: "summary_text",
+        text: "Okay, Let's first see. By the name of the file, this looks like a job offer for a react role. Yes it seems I am correct. "
+      }]
+    },
+    {
+      type: "message",
+      id: "msg_01",
+      role: "assistant",
+      status: "completed",
+      content: [{
+        type: "output_text",
+        text: "This is a react job offer, so here is a resume tailored to the offer"
+      }]
+    }
+  ] as Input[]
 }

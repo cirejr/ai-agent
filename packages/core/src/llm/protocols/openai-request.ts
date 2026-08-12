@@ -1,5 +1,5 @@
 import { type Message, type SystemMessage } from "@erwin/schema"
-import getMediaCategory from "../utils/media-category"
+import { getMediaCategory } from "../utils/media-category"
 
 type Request = {
   model: string,
@@ -217,6 +217,7 @@ export function toProviderInput(messages: Message[]): Input[] {
         const assistantMessage = message.content.map<AssistantInput|ToolInput|ReasoningOutputInput>(part => {
           switch (part.type) {
             case "text":
+            //console.log('assistant message received', message)
               const textPart: AssistantInput = {
                 type: "message",
                 role: "assistant",
