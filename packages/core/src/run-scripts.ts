@@ -147,8 +147,8 @@ const base64 = Buffer.from(bytes).toBase64()
 console.log("base64", base64)
 
 const dataUrl = `data:${file.type};base64,${base64}`
-console.log("unknown",Buffer.from(base64).setFromBase64(base64))
+console.log("unknown",new Uint8Array(Buffer.from(base64, "base64")))
 
 console.log("dataUrl", dataUrl.slice(0, 80))
 
-console.log("is valid base64 : ", isValidBase64(""))
+console.log("is valid base64 : ", isValidBase64("VG8gaW5zdGFsbCBkZXBlbmRlbmNpZXM6CmBgYHNoCmJ1biBpbnN0YWxsCmBgYAoKVG8gcnVuOgpgYGBzaApidW4gcnVuIGRldgpgYGAKCm9wZW4gaHR0cDovL2xvY2FsaG9zdDozMDAwCiMgYWktYWdlbnQK"))
