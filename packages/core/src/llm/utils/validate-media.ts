@@ -1,9 +1,9 @@
 import type { InvalidMedia, Result, ValidateMedia } from "@erwin/schema"
 
-export function validateMedia(mimeType: string, fileData: string | Uint8Array): Result<ValidateMedia, InvalidMedia> {
+export function validateMedia(mimeType: string, fileData: string | Uint8Array, supportedMimes:ReadonlySet<string>): Result<ValidateMedia, InvalidMedia> {
   const type = mimeType.trim().toLowerCase()
-  const isMimeSupported = checkMimeSupport(type)
-  const regexp = /^data:([^;,]+);base64,([A-Za-z0-9+/]*={0,2}$)/
+  const isMimeSupported = supportedMimes.has(type)
+  const regexp = /^data:([^;,]+);base64,([A-Za-z0-9+/]*={0,2})$/
 
   if (!isMimeSupported) {
     return {
@@ -81,12 +81,6 @@ export function validateMedia(mimeType: string, fileData: string | Uint8Array): 
 }
 
 
-function checkMimeSupport(mimeType: string): boolean {
-  //provide the array of supported mime types then compare if mimeType isn't in return false. or return true.
-  if(!supportedByOpenRouter.includes(mimeType)) return false
-  return true
-}
-
 type ValidBase64 = {
   base64: string,
   bytes: Uint8Array<ArrayBuffer>
@@ -147,9 +141,3 @@ export function isValidBase64(data: string): Result<ValidBase64, InvalidBase> {
     }
   }
 }
-
-const videoSupported = ["video/mp4" , "video/mpeg" , "video/mov" , "video/webm"]
-const imageSupported = ["image/png" , "image/jpeg" , "image/webp" , "image/gif"]
-const audioSupported = ["audio/wav" , "audio/mp3" , "audio/aiff" , "audio/aac" , "audio/ogg" , "audio/flac" , "audio/m4a" , "audio/pcm16" , "audio/pcm24"]
-
-const supportedByOpenRouter = [...audioSupported, ...imageSupported, ...videoSupported]

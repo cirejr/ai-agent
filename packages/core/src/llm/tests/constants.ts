@@ -28,7 +28,7 @@ export const test01 = {
       text: "Yes, Hi what can I do for you"
     }]
   }
-  ] as Message[],
+  ] satisfies Message[],
   providerInput: [
     {
       type: "message",
@@ -38,7 +38,7 @@ export const test01 = {
         text: "Your a personal assistant, help me"
       }]
   },
-  {
+    {
     type: "message",
     role: "user",
     content: [{
@@ -56,7 +56,7 @@ export const test01 = {
       text: "Yes, Hi what can I do for you"
     }]
   }
-] as Input[]
+] satisfies Input[]
 }
 
 export const test02 = {
@@ -93,7 +93,7 @@ export const test02 = {
       }
     ]
   },
-  ] as Message[],
+  ] satisfies Message[],
   providerInputWTC: [
   {
     type: "message",
@@ -120,7 +120,7 @@ export const test02 = {
     name: "get_wheather",
     arguments: "{\"city\":\"dakar\"}"
   }
-] as Input[]
+] satisfies Input[]
 }
 
 export const test03 = {
@@ -173,7 +173,7 @@ export const test03 = {
       }
     ]
   },
-  ] as Message[],
+  ] satisfies Message[],
   providerInputWTO: [
   {
     type: "message",
@@ -206,12 +206,13 @@ export const test03 = {
     call_id: 'tc_01',
     output: JSON.stringify({ temperature: '39°C', condition: 'Sunny' }),
   },
-] as Input[]
+] satisfies Input[]
 }
 
 export const test04 = {
   messagesWTO: [
     {
+      id: "msg_00",
       role: "system",
       content: [{
         type: "text",
@@ -277,7 +278,7 @@ export const test04 = {
       }
     ]
   },
-  ] as Message[],
+  ] satisfies Message[],
   providerInputWTO: [
     {
       type: "message",
@@ -325,13 +326,13 @@ export const test04 = {
     call_id: 'tc_02',
     output: JSON.stringify({ temperature: '39°C', condition: 'Sunny' }),
   },
-] as Input[]
+] satisfies Input[]
 }
 
 export const test05 = {
   messagesWR: [
     {
-      id: "msg_01",
+      id: "msg_00",
       role: "user",
       content: [
         {
@@ -342,11 +343,12 @@ export const test05 = {
         type: "media",
         id: "md_01",
         mimeType: "application/pdf",
-        name: "react-job-offer.pdf"
+        name: "react-job-offer.pdf",
+        data: "VG8gaW5zdGFsbCBkZXBlbmRlbmNpZXM6CmBgYHNoCmJ1biBpbnN0YWxsCmBgYAoKVG8gcnVuOgpgYGBzaApidW4gcnVuIGRldgpgYGAKCm9wZW4gaHR0cDovL2xvY2FsaG9zdDozMDAwCiMgYWktYWdlbnQK"
       }]
     },
   {
-    id: "msg_02",
+    id: "msg_01",
     role: "assistant",
     status: "completed",
     content: [
@@ -361,7 +363,7 @@ export const test05 = {
       }
     ]
   }
-  ] as Message[],
+  ] satisfies Message[],
   providerInputWR: [
     {
       type: "message",
@@ -374,7 +376,9 @@ export const test05 = {
         {
           type: "input_file",
           file_id: "md_01",
-          filename: "react-job-offer.pdf"
+          filename: "react-job-offer.pdf",
+          file_data:"VG8gaW5zdGFsbCBkZXBlbmRlbmNpZXM6CmBgYHNoCmJ1biBpbnN0YWxsCmBgYAoKVG8gcnVuOgpgYGBzaApidW4gcnVuIGRldgpgYGAKCm9wZW4gaHR0cDovL2xvY2FsaG9zdDozMDAwCiMgYWktYWdlbnQK",
+          file_url:"data:application/pdf;base64,VG8gaW5zdGFsbCBkZXBlbmRlbmNpZXM6CmBgYHNoCmJ1biBpbnN0YWxsCmBgYAoKVG8gcnVuOgpgYGBzaApidW4gcnVuIGRldgpgYGAKCm9wZW4gaHR0cDovL2xvY2FsaG9zdDozMDAwCiMgYWktYWdlbnQK"
         }
       ]
     },
@@ -384,6 +388,10 @@ export const test05 = {
       status: "completed",
       summary: [{
         type: "summary_text",
+        text: "Okay, Let's first see. By the name of the file, this looks like a job offer for a react role. Yes it seems I am correct. "
+      }],
+      content: [{
+        type: "reasoning_text",
         text: "Okay, Let's first see. By the name of the file, this looks like a job offer for a react role. Yes it seems I am correct. "
       }]
     },
@@ -397,5 +405,5 @@ export const test05 = {
         text: "This is a react job offer, so here is a resume tailored to the offer"
       }]
     }
-  ] as Input[]
+  ] satisfies Input[]
 }

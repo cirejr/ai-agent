@@ -1,5 +1,8 @@
-import { type Message, type SystemMessage } from "@erwin/schema"
+import { type AppError, type Message, type Result, type SystemMessage } from "@erwin/schema"
 import { getMediaCategory } from "../utils/media-category"
+import { validateMedia } from "../utils/validate-media"
+import { ALL_MIMES } from "../utils/media-mimes"
+import { extractAudioFormat } from "../utils/extract-audio-format"
 
 type Request = {
   model: string,
@@ -67,7 +70,7 @@ type UserAudio = {
   type: "input_audio",
   input_audio: {
     data: string,
-    format: "mp3" | "wav"
+    format: string
   }
 }
 
@@ -149,69 +152,94 @@ type ResponseStatus = "completed" | "in_progress" | "failed"
 
 export type Input = UserInput | AssistantInput | ToolInput | ToolOutputInput | ReasoningOutputInput | SystemInput
 
-export function toProviderInput(messages: Message[]): Input[] {
-  const inputFromMessages = messages.flatMap<Input>( message => {
+export function toProviderInput(messages: Message[]): Result<Input[], AppError> {
+  const inputs = []
+  for(const message of messages) {
     switch (message.role) {
       case "system":
-        const systemInput = toSystemInput(message)
-        return systemInput
-      case "user":{
-        const userMessage: UserInput = {
-          type: "message",
-          role: "user",
-          content: message.content.map<UserInputContent>( part => {
+        inputs.push(toSystemInput(message))
+        break
+      case "user": {
+        const content: UserInputContent[] = []
+        for (const part of message.content) {
             switch (part.type) {
               case "text": {
                 const text: UserText = {
                   type: "input_text",
                   text: part.text
                 }
-                return text
+                content.push(text)
+                break
               }
               case "media": {
                 const category = getMediaCategory(part.mimeType)
+                const validated = validateMedia(part.mimeType, part.data, new Set(ALL_MIMES))
+                if (!validated.ok) {
+                  return {
+                    ok: false,
+                    error: {
+                      _tag: "InvalidMedia",
+                      message: "Not a valid media"
+                    }
+                  }
+                }
                 switch (category) {
                   case "image":
                     const image: UserImage =  {
                       type: "input_image",
                       detail: "original",
-                      image_url: part.url
+                      image_url: validated.value.dataUrl
                     }
-                    return image
+                    content.push(image)
+                    break
                   case "file": {
                     const file: UserFile =  {
                       type: "input_file",
                       file_id: part.id,
                       filename: part.name,
-                      file_url: part.url,
-                      file_data: part.data,
+                      file_url: validated.value.dataUrl,
+                      file_data: validated.value.base64,
                     }
 
-                    return file
+                    content.push(file)
+                    break
                   }
                   case "audio": {
+
+                    const format = extractAudioFormat(validated.value.mime)
+                    if (!format.ok) {
+                      return {
+                        ok: false,
+                        error: {
+                          _tag: "InvalidAudioFormat",
+                          message: "Not a valid audio format"
+                        }
+                      }
+                    }
                     const audio: UserAudio = {
                       type: "input_audio",
                       input_audio: {
-                        data: part.data,
-                        format: part.audioFormat
+                        data: validated.value.base64,
+                        format: format.value.format
                       }
                     }
-                    return audio
+                    content.push(audio)
+                    break
                   }
                   case "video": {
                     const video: UserVideo = {
                       type: "input_video",
-                      video_url: part.url
+                      video_url: validated.value.dataUrl
                     }
-                    return video
+                    content.push(video)
+                    break
                   }
                 }
               }
             }
-          })
-        }
-        return userMessage
+          }
+        inputs.push({type: "message" as const, role: "user" as const, content})
+        break
       }
       case "assistant": {
         const assistantMessage = message.content.map<AssistantInput|ToolInput|ReasoningOutputInput>(part => {
@@ -263,7 +291,8 @@ export function toProviderInput(messages: Message[]): Input[] {
           }
         })
 
-        return assistantMessage
+        inputs.push(...assistantMessage)
+        break
       }
       case "tool": {
         const toolResult: ToolOutputInput[] =  message.content.map<ToolOutputInput>( part => {
@@ -274,12 +303,16 @@ export function toProviderInput(messages: Message[]): Input[] {
             output: JSON.stringify(part.result.value)
           }
         })
-        return toolResult
+        inputs.push(...toolResult)
+        break
       }
     }
-  })
+  }
 
-return inputFromMessages
+  return {
+    ok: true,
+    value: inputs
+  }
 
 }
 
