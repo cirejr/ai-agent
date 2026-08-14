@@ -1,12 +1,12 @@
 {
   "$schema": "https://www.schemastore.org/tsconfig",
-  "name": "@erwin/server",
+  "name": "@erwin-ai/server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "export": {
-    "." : ".src/index.ts",
-    "./*": ".src/*.ts"
+  "exports": {
+    "." : "./src/index.ts",
+    "./*": "./src/*.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.31",

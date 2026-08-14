@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
-import { toProviderInput } from "../protocols/openai-request";
 import { test01, test02, test03, test04, test05 } from "./constants";
+import { toProviderInput } from "../src/protocols/openai-responses";
 
 test("serializes user and assistant messages", () => {
   const result = toProviderInput(test01.messages)

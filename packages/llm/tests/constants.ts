@@ -1,5 +1,5 @@
-import type { Message } from "@erwin/schema"
-import type { Input } from "../protocols/openai-request"
+import type { Message } from "../src/schema/messages"
+import type { Input } from "../src/protocols/openai-responses"
 
 export const test01 = {
   messages: [

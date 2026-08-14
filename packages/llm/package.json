@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.schemastore.org/tsconfig",
-  "name": "@erwin-ai/core",
+  "name": "@erwin-ai/llm",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -9,12 +9,7 @@
       "./*": "./src/*"
     },
   "dependencies": {
-    "zod": "^4.4.3",
-    "@ai-sdk/google": "^4.0.31",
-    "@openrouter/ai-sdk-provider": "^3.0.0",
-    "ai": "^7.0.47",
-    "@erwin-ai/schema": "workspace:*",
-    "@erwin-ai/llm": "workspace:*",
+    "@erwin-ai/schema": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14"

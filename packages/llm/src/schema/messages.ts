@@ -1,3 +1,5 @@
+import type { Result } from "./results";
+
 type Role = "system" | "user" | "assistant" | "tool"
 
 type MessageHistory = Message[]
@@ -83,6 +85,38 @@ type ToolMessage = {
 type UserPart = TextPart | MediaPart
 type AssistantPart = TextPart | ToolCallPart | ReasoningPart
 type ToolPart = ToolResultPart
+
+type ToolChoice = "auto" | "none" | "required"
+
+type ReasoningEffort = "minimal" | "low" | "medium" | "high"
+
+type JsonSchema = {
+  type?: "object" | "string" | "number" | "integer" | "boolean" | "array" | "null",
+  properties: Record<string, JsonSchema>,
+  required?: string[],
+  items?: JsonSchema,
+  enum?: unknown[],
+  description?: string
+}
+
+type Tool = {
+  name: string,
+  description: string,
+  parameters: JsonSchema
+}
+
+
+type LLMRequest = {
+  model: string,
+  messages: MessageHistory,
+  tools: Tool[],
+  toolChoice: ToolChoice,
+  reasoning?: {
+    effort: ReasoningEffort
+  },
+  stream?: boolean,
+  maxTokenOutput?: number
+}
 
 export type {
   AssistantMessage,

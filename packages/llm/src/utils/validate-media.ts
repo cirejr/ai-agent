@@ -1,4 +1,14 @@
-import type { InvalidMedia, Result, ValidateMedia } from "@erwin/schema"
+import type { Result, InvalidMedia } from "../schema"
+
+
+export type ValidateMedia = {
+  mime: string,
+  bytes: Uint8Array<ArrayBuffer>,
+  dataUrl: string,
+  base64: string
+}
+
+export * as ValidateMedia from "./validate-media"
 
 export function validateMedia(mimeType: string, fileData: string | Uint8Array, supportedMimes:ReadonlySet<string>): Result<ValidateMedia, InvalidMedia> {
   const type = mimeType.trim().toLowerCase()

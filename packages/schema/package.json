@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.schemastore.org/tsconfig",
-  "name": "@erwin/schema",
+  "name": "@erwin-ai/schema",
   "private": true,
   "type": "module",
   "exports": {

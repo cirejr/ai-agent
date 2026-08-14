@@ -1,4 +1,5 @@
-import type { InvalidAudioFormat, Result } from "@erwin/schema"
+import type { InvalidAudioFormat } from "../schema/errors"
+import type { Result } from "../schema/results"
 
 
 export function extractAudioFormat(mimeType: string): Result<{format: string}, InvalidAudioFormat> {
