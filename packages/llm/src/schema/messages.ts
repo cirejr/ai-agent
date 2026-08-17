@@ -1,5 +1,3 @@
-import type { Result } from "./results";
-
 type Role = "system" | "user" | "assistant" | "tool"
 
 type MessageHistory = Message[]
@@ -41,7 +39,7 @@ type ToolResultPart = {
   id?: string,
   type: "tool-result"
   toolCallId: string;
-  name: string,
+  name?: string,
   result: ToolResultValue
 }
 
@@ -58,26 +56,26 @@ type Part = TextPart | ToolCallPart | ReasoningPart | MediaPart | ToolResultPart
 type Message = UserMessage | SystemMessage | AssistantMessage | ToolMessage
 
 type UserMessage = {
-  id: string;
+  id?: string;
   role: "user",
   content: UserPart[]
 }
 
 type SystemMessage = {
-  id: string;
+  id?: string;
   role: "system",
   content: TextPart[]
 }
 
 type AssistantMessage = {
-  id: string;
+  id?: string;
   role: "assistant",
   status?: "completed" | "in_progress" | "failed"
   content: AssistantPart[]
 }
 
 type ToolMessage = {
-  id: string;
+  id?: string;
   role: "tool",
   content: ToolPart[]
 }
@@ -102,7 +100,8 @@ type JsonSchema = {
 type Tool = {
   name: string,
   description: string,
-  parameters: JsonSchema
+  inputSchema: JsonSchema,
+  outputSchema?: JsonSchema
 }
 
 
@@ -110,13 +109,50 @@ type LLMRequest = {
   model: string,
   messages: MessageHistory,
   tools: Tool[],
-  toolChoice: ToolChoice,
+  toolChoice?: ToolChoice,
+  max_tool_calls?:number | null
   reasoning?: {
     effort: ReasoningEffort
   },
   stream?: boolean,
   maxTokenOutput?: number
 }
+
+
+type ResponseUsage = {
+  input_tokens: number,
+  output_tokens: number,
+  input_tokens_details?: {
+    cache_write_tokens: number,
+    cached_tokens: number
+  },
+  output_tokens_details?: {
+    reasoning_tokens: number
+  },
+  total_tokens: number,
+}
+
+
+type ResponseStatus = "completed" | "in_progress" | "failed" | "cancelled" | "queued" | "incomplete"
+
+type ErrorCode = "invalid_prompt" | "rate_limit_exceeded" | "image_content_policy_violation" | "server_error"
+
+type ResponseError = {
+    code: ErrorCode,
+    message: string
+}
+
+type LLMResponse = {
+  id: string,
+  createdAt: number,
+  model: string,
+  messages: MessageHistory,
+  usage?: ResponseUsage,
+  status?: ResponseStatus,
+  error: ResponseError | null,
+  error_type?: never,
+}
+
 
 export type {
   AssistantMessage,
@@ -135,4 +171,4 @@ export type {
   ToolResultPart,
   UserMessage,
   UserPart
-}
+  , LLMRequest, JsonSchema, LLMResponse}

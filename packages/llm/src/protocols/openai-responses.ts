@@ -1,10 +1,13 @@
-import { type AppError, type Message, type Result, type SystemMessage } from "../schema"
+import { type AppError, type AssistantMessage, type AssistantPart, type JsonSchema, type LLMRequest, type LLMResponse, type Message, type MessageHistory, type ReasoningPart, type Result, type SystemMessage, type TextPart, type ToolCallPart, type ToolMessage, type ToolResultPart } from "../schema"
 import { getMediaCategory } from "../utils/media-category"
 import { validateMedia } from "../utils/validate-media"
 import { ALL_MIMES } from "../utils/media-mimes"
 import { extractAudioFormat } from "../utils/extract-audio-format"
+import { generateId } from "../utils/generate-id"
+import { mapProviderError } from "../utils/map-provider-error"
 
-type Status = "completed" | "in_progress" | "failed"
+type ResponseStatus = "completed" | "in_progress" | "failed" | "cancelled" | "queued" | "incomplete"
+type ResponseOutputItemStatus = "completed" | "in_progress" | "failed"
 
 type MessageContent = {
   type: "output_text",
@@ -12,21 +15,25 @@ type MessageContent = {
   annotations: unknown[]
 }
 
-type UsageStats = {
+type ResponseUsage = {
   input_tokens: number,
   output_tokens: number,
+  input_tokens_details?: {
+    cache_write_tokens: number,
+    cached_tokens: number
+  },
   output_tokens_details?: {
     reasoning_tokens: number
   },
   total_tokens: number,
 }
 
-type Output = MessageOutput | ReasoningOutput | ToolOutput
+export type ResponseOutputItem = ResponseOutputMessage | ReasoningOutput | ToolOutput | ToolCall
 
-type MessageOutput = {
+type ResponseOutputMessage = {
   type: "message",
   id: string,
-  status: Status,
+  status: ResponseOutputItemStatus,
   role: "assistant",
   content: MessageContent[],
 }
@@ -34,57 +41,89 @@ type MessageOutput = {
 type ReasoningOutput = {
   type: "reasoning",
   id: string,
-  status: Status,
+  status?: ResponseOutputItemStatus,
   encrypted_content?: string,
-  summary?: string[]
+  summary: {
+    type: "summary_text",
+    text: string
+    }[],
   content?: {
     type: "reasoning_text",
     text: string
     }[]
 }
 
-type ToolOutput = {
+type ToolCaller = Direct | Program
+
+type Direct = {
+  type: "direct"
+}
+
+type Program = {
+  caller_id: string,
+  type: "program"
+}
+
+type ToolCall = {
   type: "function_call",
-  id: string,
+  id?: string,
   call_id: string,
   name: string,
   arguments: string
+  status?: ResponseOutputItemStatus,
+  caller?: ToolCaller
 }
 
-type SuccessResponse = {
+type ToolOutputContent = string | OutputContentList[]
+
+type OutputContentList = ResponseInputText | ResponseInputImage | ResponseInputFile
+
+type ToolOutput = {
+  type: "function_call_output",
+  id?: string,
+  call_id: string,
+  name?: string,
+  output: ToolOutputContent,
+  status: ResponseOutputItemStatus,
+  created_by: string
+}
+
+export type OpenAIResponse = {
   id: string,
   object: "response",
   created_at: number,
   model: string,
-  output: Output[]
-  usage?: UsageStats,
-  status: "completed" | "in_progress"
-  error: null,
-  error_type?: never
-}
-
-type FailedResponse = {
-  id: string,
-  status: "failed"
-  error: ProviderError,
-  error_type: string
+  output: ResponseOutputItem[],
+  usage?: ResponseUsage,
+  parallel_tool_calls: boolean,
+  temperature: number | null
+  top_p: number | null,
+  conversation?: { id: string } | null,
+  status?: ResponseStatus,
+  error: ResponseError | null,
+  error_type?: never,
+  max_output_tokens?: number | null,
+  max_tool_calls?: number | null,
+  truncation?: "auto" | "disabled" | null,
+  prompt_cache_options?: {
+    mode: "implicit" | "explicit",
+    ttl: "30m"
+  }
 }
 
 type ErrorCode = "invalid_prompt" | "rate_limit_exceeded" | "image_content_policy_violation" | "server_error"
 
-type ProviderError = {
+type ResponseError = {
     code: ErrorCode,
     message: string
 }
-
-type OpenAIResponse = SuccessResponse | FailedResponse
 
 type Request = BaseRequest | RequestWithTool
 
 type BaseRequest = {
   model: string,
   input: Input[],
-  instructions: string,
+  instructions?: string | null,
   reasoning?: {
     effort: ReasoningEffort
   },
@@ -94,21 +133,18 @@ type BaseRequest = {
 
 type RequestWithTool = BaseRequest & {
   tools: Tool[],
-  tool_choice: ToolChoice
+  tool_choice?: ToolChoice
 }
 
-type ToolChoice = "auto" | "none" | { type: "function", name: string }
+type ToolChoice = "auto" | "none" | "required"
 
 type Tool = {
   type: "function",
   name: string,
-  description: string,
-  strict: boolean | null,
-  parameters: {
-    type: "object",
-    properties: Record<string, unknown>,
-    required: string[]
-  }
+  description?: string,
+  strict?: boolean | null,
+  parameters: JsonSchema,
+  output_schema?: JsonSchema
 }
 
 type ReasoningEffort = "minimal" | "low" | "medium" | "high"
@@ -127,7 +163,7 @@ type SystemInput = {
   phase?: "commentary" | "final_answer"
 }
 
-type UserText = {
+type ResponseInputText = {
   type: "input_text",
   text: string,
   prompt_cache_breakpoint?: {
@@ -143,18 +179,26 @@ type UserAudio = {
   }
 }
 
-type UserFile = {
+type ResponseInputFile = {
   type: "input_file",
+  detail?:"auto" | "low"| "high",
   file_data?: string,
   file_id?: string,
   file_url?: string,
-  filename?: string
+  filename?: string,
+  prompt_cache_breakpoint?: {
+    mode: "explicit"
+  },
 }
 
-type UserImage = {
+type ResponseInputImage = {
   type: "input_image",
-  detail: "auto" | "low" | "high" | "original"
-  image_url?: string
+  detail: "auto" | "low" | "high" | "original",
+  file_id?: string,
+  image_url?: string,
+  prompt_cache_breakpoint?: {
+    mode: "explicit"
+  },
 }
 
 type UserVideo = {
@@ -162,7 +206,7 @@ type UserVideo = {
   video_url: string,
 }
 
-type UserInputContent = UserText | UserAudio | UserFile | UserImage | UserVideo
+type UserInputContent = ResponseInputText | UserAudio | ResponseInputFile | ResponseInputImage | UserVideo
 
 type UserInput = {
   type: "message",
@@ -189,16 +233,14 @@ type ReasoningOutputInput = {
   type: "reasoning",
   id?: string,
   status: "completed",
-  summary: [
-    {
-      type: "summary_text",
-      text: string,
-    }
-  ],
-  content?: [{
+  summary: {
+    type: "summary_text",
+    text: string,
+  }[],
+  content?: {
     type: "reasoning_text",
     text: string
-  }],
+  }[],
   encrypted_content?: string,
   format?: unknown | "openai-responses-v1" | "azure-openai-responses-v1" | "google-gemini-v1" | "anthropic-claude-v1" | "bedrock-openai-responses-v1" | "xai-responses-v1" | "meta-responses-v1",
   signatures?: string
@@ -208,16 +250,14 @@ type AssistantInput = {
   type: 'message',
   role: 'assistant',
   id?: string,
-  status?: ResponseStatus,
-  content: [
-    {
-      type: 'output_text',
-      text: string,
-    }
-  ]
+  status?: MessageStatus,
+  content: {
+    type: 'output_text',
+    text: string,
+  }[]
 }
 
-type ResponseStatus = "completed" | "in_progress" | "failed"
+type MessageStatus = "completed" | "in_progress" | "failed"
 
 export type Input = UserInput | AssistantInput | ToolInput | ToolOutputInput | ReasoningOutputInput | SystemInput
 
@@ -233,7 +273,7 @@ export function toProviderInput(messages: Message[]): Result<Input[], AppError> 
         for (const part of message.content) {
             switch (part.type) {
               case "text": {
-                const text: UserText = {
+                const text: ResponseInputText = {
                   type: "input_text",
                   text: part.text
                 }
@@ -254,7 +294,7 @@ export function toProviderInput(messages: Message[]): Result<Input[], AppError> 
                 }
                 switch (category) {
                   case "image":
-                    const image: UserImage =  {
+                    const image: ResponseInputImage =  {
                       type: "input_image",
                       detail: "original",
                       image_url: validated.value.dataUrl
@@ -262,7 +302,7 @@ export function toProviderInput(messages: Message[]): Result<Input[], AppError> 
                     content.push(image)
                     break
                   case "file": {
-                    const file: UserFile =  {
+                    const file: ResponseInputFile =  {
                       type: "input_file",
                       file_id: part.id,
                       filename: part.name,
@@ -397,26 +437,182 @@ export function toSystemInput(message: SystemMessage): SystemInput {
   }
 }
 
+export function toProvider(request: LLMRequest): Result<Request, AppError> {
 
+  const result = toProviderInput(request.messages)
 
-export function fromProvider(response: OpenAIResponse) {
-  if (response?.status === "failed") {
-    return {
-      status: "failed",
-      error: response.error,
-      error_type: response.error_type
+  if (!result.ok) return {
+    ok: false,
+    error: {
+      _tag: result.error._tag,
+      message: result.error.message
     }
-  } else {
+  }
 
-    const result = response.output.map(output => {
-      if (output.type === "message") {
+  const tools = request.tools.map<Tool>(tool => {
+    return {
+      type: "function" as const,
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.inputSchema,
+      output_schema: tool.outputSchema
+    }
+  })
 
-      }
-    } )
+  const providerRequest = {
+    model: request.model,
+    input: result.value,
+    tools,
+    tool_choice: request.toolChoice ?? "auto",
+    reasoning: request.reasoning,
+    max_output_tokens: request.maxTokenOutput,
+    stream: request.stream,
+  } satisfies Request
 
+  return {
+    ok: true,
+    value: providerRequest
   }
 }
 
 
+export function fromProvider(response: OpenAIResponse): Result<LLMResponse, AppError> {
+  if (response.error != null) {
+    return {
+      ok: false,
+      error: {
+        _tag: mapProviderError(response.error.code)._tag,
+        message: response.error.message
+      }
+    }
+  }
+
+  const result = toMessages(response.output)
+
+  if (!result.ok) return {
+    ok: false,
+    error: result.error
+  }
+
+  const llmResponse = {
+    id: response.id,
+    createdAt: response.created_at,
+    status: response.status,
+    model: response.model,
+    messages: result.value,
+    error: null,
+    usage: response.usage
+  } satisfies LLMResponse
+
+  return {
+    ok: true,
+    value: llmResponse
+  }
+}
+
+export function toMessages(output: ResponseOutputItem[]): Result<(AssistantMessage | ToolMessage)[], AppError> {
+
+  const messages: (AssistantMessage | ToolMessage)[] = []
+
+  const assistantParts = [] as AssistantPart[]
+  const toolResultParts = [] as ToolResultPart[]
+
+  for (const item of output) {
+
+    if (item.type == "function_call_output") {
+      const part = {
+        id: item.id,
+        name: item.name,
+        toolCallId: item.call_id,
+        type: "tool-result",
+        result: item.status == "failed" ? {
+          type: "error",
+          value: item.output
+        } : Array.isArray(item.output) ? {
+            type: "content",
+            value: item.output
+          } : {
+              type: "text",
+              value: item.output
+        }
+      } satisfies ToolResultPart
+
+
+      toolResultParts.push(part)
+    }
+
+    if (item.type == "message" || item.type == "function_call" || item.type == "reasoning") {
+      switch (item.type) {
+        case "message": {
+          for (const part of item.content) {
+            const messageContent = {
+              type: "text",
+              text: part.text
+            } satisfies TextPart
+            assistantParts.push(messageContent)
+          }
+          break
+        }
+        case "reasoning": {
+          const reasoningPart = {
+            id: item.id,
+            type: "reasoning" as const,
+            text: item.summary.map(s => s.text).join(","),
+          } satisfies ReasoningPart
+          assistantParts.push(reasoningPart)
+          break
+        }
+        case "function_call": {
+          let args: Record<string, unknown>
+          try {
+            args = JSON.parse(item.arguments)
+          } catch(e) {
+            return {
+              ok: false,
+              error: {
+                _tag: "InvalidToolArguments",
+                message: `${e instanceof Error ? e.message : `Invalid arguments for ${item.name}`}`
+              }
+            }
+          }
+          const toolCallPart = {
+            id: item.id,
+            name: item.name,
+            toolCallId: item.call_id,
+            type: "tool-call" as const,
+            arguments: args
+          } satisfies ToolCallPart
+
+          assistantParts.push(toolCallPart)
+          break
+        }
+      }
+
+    }
+  }
+
+  if(assistantParts.length > 0) {
+    const assistantMessages = {
+      role: "assistant" as const,
+      content: assistantParts
+    } satisfies AssistantMessage
+
+    messages.push(assistantMessages)
+  }
+
+ if(toolResultParts.length> 0) {
+  const toolPart = {
+    role: "tool" as const,
+    content : toolResultParts
+  } satisfies ToolMessage
+
+  messages.push(toolPart)
+ }
+
+  return {
+    ok: true,
+    value: messages
+  }
+}
 
 export * as OpenAIResponses from "./openai-responses"
