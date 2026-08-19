@@ -1,9 +1,8 @@
-import { type AppError, type AssistantMessage, type AssistantPart, type JsonSchema, type LLMRequest, type LLMResponse, type Message, type MessageHistory, type ReasoningPart, type Result, type SystemMessage, type TextPart, type ToolCallPart, type ToolMessage, type ToolResultPart } from "../schema"
+import { Model, ModelID, type AppError, type AssistantMessage, type AssistantPart, type JsonSchema, type LLMRequest, type LLMResponse, type Message, type MessageHistory, type ReasoningPart, type Result, type SystemMessage, type TextPart, type ToolCallPart, type ToolMessage, type ToolResultPart } from "../schema"
 import { getMediaCategory } from "../utils/media-category"
 import { validateMedia } from "../utils/validate-media"
 import { ALL_MIMES } from "../utils/media-mimes"
 import { extractAudioFormat } from "../utils/extract-audio-format"
-import { generateId } from "../utils/generate-id"
 import { mapProviderError } from "../utils/map-provider-error"
 
 type ResponseStatus = "completed" | "in_progress" | "failed" | "cancelled" | "queued" | "incomplete"
@@ -18,11 +17,11 @@ type MessageContent = {
 type ResponseUsage = {
   input_tokens: number,
   output_tokens: number,
-  input_tokens_details?: {
+  input_tokens_details: {
     cache_write_tokens: number,
     cached_tokens: number
   },
-  output_tokens_details?: {
+  output_tokens_details: {
     reasoning_tokens: number
   },
   total_tokens: number,
@@ -101,7 +100,6 @@ export type OpenAIResponse = {
   conversation?: { id: string } | null,
   status?: ResponseStatus,
   error: ResponseError | null,
-  error_type?: never,
   max_output_tokens?: number | null,
   max_tool_calls?: number | null,
   truncation?: "auto" | "disabled" | null,
@@ -111,12 +109,12 @@ export type OpenAIResponse = {
   }
 }
 
-type ErrorCode = "invalid_prompt" | "rate_limit_exceeded" | "image_content_policy_violation" | "server_error"
-
-type ResponseError = {
+export type ErrorCode = "invalid_prompt" | "rate_limit_exceeded" | "image_content_policy_violation" | "server_error" | "data_residency_mismatch" | "bio_policy"  |"vector_store_timeout" |"invalid_image" |"invalid_image_format" |"invalid_base64_image" |"invalid_image_url" |"image_too_large" |"image_too_small" |"image_parse_error" |"invalid_image_mode" |"image_file_too_large" |"unsupported_image_media_type" |"empty_image_file" |"failed_to_download_image" |"image_file_not_found"
+export type ResponseError = {
     code: ErrorCode,
     message: string
 }
+
 
 type Request = BaseRequest | RequestWithTool
 
@@ -460,7 +458,7 @@ export function toProvider(request: LLMRequest): Result<Request, AppError> {
   })
 
   const providerRequest = {
-    model: request.model,
+    model: request.model.id,
     input: result.value,
     tools,
     tool_choice: request.toolChoice ?? "auto",
@@ -476,14 +474,11 @@ export function toProvider(request: LLMRequest): Result<Request, AppError> {
 }
 
 
-export function fromProvider(response: OpenAIResponse): Result<LLMResponse, AppError> {
+export function fromProvider(response: OpenAIResponse, model: Model): Result<LLMResponse, AppError> {
   if (response.error != null) {
     return {
       ok: false,
-      error: {
-        _tag: mapProviderError(response.error.code)._tag,
-        message: response.error.message
-      }
+      error: mapProviderError(response.error)
     }
   }
 
@@ -498,10 +493,21 @@ export function fromProvider(response: OpenAIResponse): Result<LLMResponse, AppE
     id: response.id,
     createdAt: response.created_at,
     status: response.status,
-    model: response.model,
+    model: model,
     messages: result.value,
     error: null,
-    usage: response.usage
+    usage: response.usage && {
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+      totalTokens: response.usage.total_tokens,
+      inputTokensDetails: {
+        cacheWriteTokens: response.usage.input_tokens_details?.cache_write_tokens,
+        cachedTokens: response.usage.input_tokens_details?.cached_tokens
+      },
+      outputTokensDetails: {
+        reasoningTokens: response.usage.output_tokens_details?.reasoning_tokens
+      }
+    }
   } satisfies LLMResponse
 
   return {

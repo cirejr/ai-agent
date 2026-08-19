@@ -1,6 +1,7 @@
 import type { LLMResponse, Message } from "../src/schema/messages"
 import type { Input, OpenAIResponse } from "../src/protocols/openai-responses"
 import type { AppError } from "../src/schema"
+import type { Model } from "../src/schema/model"
 
 export const test01 = {
   messages: [
@@ -416,7 +417,7 @@ export const resp01 = {
       type: "message", id: "msg_01", status: "completed", role: "assistant",
       content: [{ type: "output_text", text: "Yes, Hi what can I do for you", annotations: [] }]
     }],
-    usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
+    usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30, input_tokens_details : { cache_write_tokens: 456, cached_tokens: 152 }, output_tokens_details : { reasoning_tokens: 0 } },
     parallel_tool_calls: true, temperature: null, top_p: null,
     status: "completed", error: null,
   } satisfies OpenAIResponse,
@@ -424,7 +425,7 @@ export const resp01 = {
     id: "resp_01", createdAt: 1720000000, status: "completed", model: "gpt-4o",
     messages: [{ role: "assistant", content: [{ type: "text", text: "Yes, Hi what can I do for you" }] }],
     error: null,
-    usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
+    usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30, inputTokensDetails : { cacheWriteTokens: 456, cachedTokens: 152 }, outputTokensDetails : { reasoningTokens: 0 }  },
   } satisfies LLMResponse,
 }
 
@@ -441,12 +442,12 @@ export const resp02 = {
         output: JSON.stringify({ temperature: "39°C", condition: "Sunny" }),
         status: "completed", created_by: "system" },
     ],
-    usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
+    usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30, input_tokens_details : { cache_write_tokens: 456, cached_tokens: 152 }, output_tokens_details : { reasoning_tokens: 0 }  },
     parallel_tool_calls: true, temperature: null, top_p: null,
     status: "completed", error: null,
   } satisfies OpenAIResponse,
   expected: {
-    id: "resp_02", createdAt: 1720000000, status: "completed", model: "gpt-4o",
+    id: "resp_02", createdAt: 1720000000, status: "completed", model: "gpt-4o" as Model["id"],
     messages: [
       {
         role: "assistant",
@@ -464,7 +465,7 @@ export const resp02 = {
       },
     ],
     error: null,
-    usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
+    usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30, inputTokensDetails : { cacheWriteTokens: 456, cachedTokens: 152 }, outputTokensDetails : { reasoningTokens: 0 }  },
   } satisfies LLMResponse,
 }
 

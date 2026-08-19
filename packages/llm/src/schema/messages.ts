@@ -1,3 +1,6 @@
+import type { AppError } from "./errors";
+import type { Model } from "./model";
+
 type Role = "system" | "user" | "assistant" | "tool"
 
 type MessageHistory = Message[]
@@ -106,7 +109,7 @@ type Tool = {
 
 
 type LLMRequest = {
-  model: string,
+  model: Model,
   messages: MessageHistory,
   tools: Tool[],
   toolChoice?: ToolChoice,
@@ -120,37 +123,29 @@ type LLMRequest = {
 
 
 type ResponseUsage = {
-  input_tokens: number,
-  output_tokens: number,
-  input_tokens_details?: {
-    cache_write_tokens: number,
-    cached_tokens: number
+  inputTokens: number,
+  outputTokens: number,
+  inputTokensDetails: {
+    cacheWriteTokens: number,
+    cachedTokens: number
   },
-  output_tokens_details?: {
-    reasoning_tokens: number
+  outputTokensDetails: {
+    reasoningTokens: number
   },
-  total_tokens: number,
+  totalTokens: number,
 }
 
 
 type ResponseStatus = "completed" | "in_progress" | "failed" | "cancelled" | "queued" | "incomplete"
 
-type ErrorCode = "invalid_prompt" | "rate_limit_exceeded" | "image_content_policy_violation" | "server_error"
-
-type ResponseError = {
-    code: ErrorCode,
-    message: string
-}
-
 type LLMResponse = {
   id: string,
   createdAt: number,
-  model: string,
+  model: Model,
   messages: MessageHistory,
   usage?: ResponseUsage,
   status?: ResponseStatus,
-  error: ResponseError | null,
-  error_type?: never,
+  error: AppError | null,
 }
 
 
