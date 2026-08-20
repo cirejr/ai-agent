@@ -1,7 +1,7 @@
 import type { LLMResponse, Message } from "../src/schema/messages"
 import type { Input, OpenAIResponse } from "../src/protocols/openai-responses"
 import type { AppError } from "../src/schema"
-import type { Model } from "../src/schema/model"
+import { Model } from "../src/schema/model"
 
 export const test01 = {
   messages: [
@@ -422,7 +422,7 @@ export const resp01 = {
     status: "completed", error: null,
   } satisfies OpenAIResponse,
   expected: {
-    id: "resp_01", createdAt: 1720000000, status: "completed", model: "gpt-4o",
+    id: "resp_01", createdAt: 1720000000, status: "completed", model: Model.make({ id: "gpt-4o", provider: "openai"}),
     messages: [{ role: "assistant", content: [{ type: "text", text: "Yes, Hi what can I do for you" }] }],
     error: null,
     usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30, inputTokensDetails : { cacheWriteTokens: 456, cachedTokens: 152 }, outputTokensDetails : { reasoningTokens: 0 }  },
@@ -447,7 +447,7 @@ export const resp02 = {
     status: "completed", error: null,
   } satisfies OpenAIResponse,
   expected: {
-    id: "resp_02", createdAt: 1720000000, status: "completed", model: "gpt-4o" as Model["id"],
+    id: "resp_02", createdAt: 1720000000, status: "completed", model: Model.make({ id: "gpt-4o", provider: "openai"}),
     messages: [
       {
         role: "assistant",
@@ -511,7 +511,7 @@ export const resp03 = {
     id: "resp_03",
     createdAt: 1720000000,
     status: "completed",
-    model: "gpt-4o",
+    model: Model.make({ id: "gpt-4o", provider: "openai"}),
     messages: [
       {
         role: "assistant",
@@ -566,7 +566,7 @@ export const resp04 = {
     id: "resp_04",
     createdAt: 1720000000,
     status: "completed",
-    model: "gpt-4o",
+    model: Model.make({ id: "gpt-4o", provider: "openai"}),
     messages: [{
       role: "tool",
       content: [{
@@ -637,7 +637,7 @@ export const resp07 = {
     id: "resp_07",
     createdAt: 1720000000,
     status: "completed",
-    model: "gpt-4o",
+    model: Model.make({ id: "gpt-4o", provider: "openai"}),
     messages: [],
     error: null,
   } satisfies LLMResponse,

@@ -11,19 +11,16 @@ export type ModelID = Brand<string, "ModelID">
 export type ProviderID = Brand<string, "ProviderID">
 
 export const ModelID = {
-  make: (input: string) => input as ModelID
+  make: (input: string): ModelID => input as unknown as ModelID
 }
 
 export const ProviderID = {
-  make: (input: string) => input as ProviderID
+  make: (input: string): ProviderID => input as unknown as ProviderID
 }
 
 export const Model = {
-  make: (input: { id: string, provider: string}) => {
-    return {
+  make: (input: { id: string, provider: string}) => ({
       id: ModelID.make(input.id),
       provider: ProviderID.make(input.provider)
-    }
-  }
-
+  })
 }

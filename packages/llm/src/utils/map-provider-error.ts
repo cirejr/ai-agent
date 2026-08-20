@@ -5,7 +5,7 @@ import type { AppError } from "../schema";
 const ERROR_TAG = {
   rate_limit_exceeded: "RateLimitExceeded",
   invalid_prompt: "InvalidPrompt",
-  server_error: "ServerError",
+  server_error: "ProviderServerError",
   bio_policy: "PolicyError",
   image_content_policy_violation: "PolicyError",
   data_residency_mismatch: "ProviderError",
