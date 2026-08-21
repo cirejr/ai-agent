@@ -52,6 +52,12 @@
         "zod": "^4.4.3",
       },
     },
+    "packages/validator": {
+      "name": "@erwin-ai/validator",
+      "devDependencies": {
+        "@tsconfig/bun": "^1.0.10",
+      },
+    },
   },
   "packages": {
     "@ai-sdk/gateway": ["@ai-sdk/gateway@4.0.41", "", { "dependencies": { "@ai-sdk/provider": "4.0.5", "@ai-sdk/provider-utils": "5.0.21", "@vercel/oidc": "3.2.0" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-DPkDmmA336kqmIp62on550/6Q6JHvldsnvN1SmkwU8QGrVt1PzFxqyKUn0C5EGGmSBpvF1ohZNtvWNl8gEVugA=="],
@@ -69,6 +75,8 @@
     "@erwin-ai/schema": ["@erwin-ai/schema@workspace:packages/schema"],
 
     "@erwin-ai/server": ["@erwin-ai/server@workspace:packages/server"],
+
+    "@erwin-ai/validator": ["@erwin-ai/validator@workspace:packages/validator"],
 
     "@openrouter/ai-sdk-provider": ["@openrouter/ai-sdk-provider@3.0.0", "", { "peerDependencies": { "ai": "^7.0.0", "zod": "^3.25.76 || ^4.1.8" } }, "sha512-m9XTSWoODH2RM5OsZpaGiN7QRR8cdP5paBWq699Tu3JVmGPBKT8xF8XwV0ZBVVsjikD/JgWfak4VSsTR4wAVbg=="],
 

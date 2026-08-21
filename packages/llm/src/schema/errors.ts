@@ -1,5 +1,5 @@
 
-export type AppError = InvalidMedia | InvalidAudioFormat | InvalidPrompt | RateLimitExceeded | InvalidToolArguments | ProviderServerError | ProviderError | PolicyError
+export type AppError = InvalidMedia | InvalidAudioFormat | InvalidPrompt | RateLimitExceeded | InvalidToolArguments | ProviderServerError | ProviderError | PolicyError | InvalidResponse
 
 export type InvalidMedia = {
   _tag: "InvalidMedia",
@@ -38,5 +38,10 @@ export type ProviderError = {
 
 export type PolicyError = {
   _tag: "PolicyError",
+  message: string
+}
+
+export type InvalidResponse = {
+  _tag: "InvalidResponse",
   message: string
 }

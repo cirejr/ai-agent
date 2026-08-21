@@ -1,1 +1,1 @@
-export type { AnyToolDescriptor, Schema, ToolDescriptor } from "./tool-descriptor";
+export type { AnyToolDescriptor, Schema, ToolDescriptor } from "./types/tool-descriptor";

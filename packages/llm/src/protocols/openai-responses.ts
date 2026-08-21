@@ -1,4 +1,4 @@
-import { Model, ModelID, type AppError, type AssistantMessage, type AssistantPart, type JsonSchema, type LLMRequest, type LLMResponse, type Message, type MessageHistory, type ReasoningPart, type Result, type SystemMessage, type TextPart, type ToolCallPart, type ToolMessage, type ToolResultPart } from "../schema"
+import { Model, type AppError, type AssistantMessage, type AssistantPart, type JsonSchema, type LLMRequest, type LLMResponse, type Message, type MessageHistory, type ReasoningPart, type Result, type SystemMessage, type TextPart, type ToolCallPart, type ToolMessage, type ToolResultPart } from "../schema"
 import { getMediaCategory } from "../utils/media-category"
 import { validateMedia } from "../utils/validate-media"
 import { ALL_MIMES } from "../utils/media-mimes"
@@ -473,7 +473,6 @@ export function toProvider(request: LLMRequest): Result<Request, AppError> {
   }
 }
 
-
 export function fromProvider(response: OpenAIResponse, model: Model): Result<LLMResponse, AppError> {
   if (response.error != null) {
     return {
@@ -619,6 +618,74 @@ export function toMessages(output: ResponseOutputItem[]): Result<(AssistantMessa
     ok: true,
     value: messages
   }
+}
+
+export function parseOpenAIResponse(data: unknown): Result<OpenAIResponse, AppError> {
+
+  if (!isRecord(data)) return invalidResponse("Response is not a valid object")
+
+  if (typeof data.id !== 'string') return invalidResponse("id is not a valid string")
+
+  if (data.object !== "response") return invalidResponse("response.object must always be set to 'response'")
+
+  if (typeof data.created_at !== "number") return invalidResponse("property 'created_at' is not a valid number")
+
+  if (typeof data.model !== "string") return invalidResponse("property 'model' is not a valid string")
+
+  if (!Array.isArray(data.output)) return invalidResponse("property 'output' is not a valid array")
+
+  for (const item of data.output) {
+    if(!isRecord(item)) return invalidResponse("one or more item in out property 'output' is not a valid object")
+    switch (item.type) {
+      case "message": {
+        if (typeof item.id !== "string") return invalidResponse("property 'id' of item 'message' is not a valid string")
+        if (typeof item.status !== 'string' || !isOneOf(item.status, ["completed", "in_progress", "failed"])) return invalidResponse("property 'status' of item 'message' is not a valid value")
+        if (typeof item.role !== "string" || item.role !== "assistant") return invalidResponse("property 'role' of item 'message' is not a valid 'message' role")
+        if (!Array.isArray(item.content)) return invalidResponse("property 'content' of item 'message' is not a valid array")
+        for (const i of item.content) {
+          if (!isRecord(i)) return invalidResponse("item in 'content' is not a valid object")
+          if (typeof i.type !== "string" || i.type !== "output_text") return invalidResponse("property 'type' of 'content' is not a valid a type")
+          if (typeof i.text !== "string") return invalidResponse("property  'text' of 'content' is not a valid string")
+          if (!Array.isArray(i.annotations)) return invalidResponse(" property 'annotations' of 'content' is not a valid array")
+        }
+       break
+      }
+      case "reasoning": {
+        if (typeof item.id !== "string") return invalidResponse("property 'id' of item 'reasoning' is not a valid string")
+        if (item.status !== undefined && (typeof item.status !== 'string' || !isOneOf(item.status, ["completed", "in_progress", "failed"]))) return invalidResponse("property 'status' of item 'reasoning' is not a valid value")
+        if( item.encrypted_content !== undefined && typeof item.encrypted_content !== "string") return invalidResponse("property 'encrypted_content' of item 'reasoning' is not a valid value")
+        }
+      }
+  }
+
+  return {
+    ok: true,
+    value: data as OpenAIResponse
+   }
+}
+
+export function invalidResponse(message: string): { ok: false, error: AppError } {
+  return {
+    ok: false,
+    error: {
+    _tag: "InvalidResponse",
+    message
+    }
+  }
+}
+
+export function isRecord(v: unknown): v is Record<string, unknown> {
+  if (v == null || typeof v !== "object") {
+    return false
+  }
+
+  return true
+}
+
+export function isOneOf(v: string, array: string[]) {
+  if (!array.includes(v)) return false
+
+  return true
 }
 
 export * as OpenAIResponses from "./openai-responses"
