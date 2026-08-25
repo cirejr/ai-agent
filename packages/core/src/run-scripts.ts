@@ -8,7 +8,6 @@ import { bash } from "./tool/bash";
 import {registry} from "./registry/tool-registry";
 import z from "zod";
 import type { AnyToolDescriptor, ToolDescriptor } from "@erwin/schema";
-import { isOneOf } from "../../llm/src/protocols/openai-responses";
 
 /*
 const files = (await fileSearch({
@@ -131,5 +130,3 @@ console.log("has read_file", registry.get("grep")?.name)
 
 //const file = Bun.file("/mnt/c/Users/D E L L/Downloads/Subnetting_Blueprint.pdf")
 //
-
-console.log("is ", isOneOf("bonjour", ["completed", "in_progress", "failed"]))

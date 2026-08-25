@@ -1,3 +1,5 @@
+import type { JsonSchema } from "./shared"
+
 export function isRecord(v: unknown): v is Record<string, unknown> {
   if (v == null || typeof v !== "object") {
     return false
@@ -20,4 +22,9 @@ export function actualTypeOf(v: unknown) {
   }
 
   return type
+}
+
+export function matchJsTypes(t: JsonSchema["type"]) {
+  if (t === "integer") return "number"
+  return t
 }

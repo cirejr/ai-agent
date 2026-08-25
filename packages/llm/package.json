@@ -9,7 +9,8 @@
       "./*": "./src/*"
     },
   "dependencies": {
-    "@erwin-ai/schema": "workspace:*"
+    "@erwin-ai/schema": "workspace:*",
+    "@erwin-ai/validator": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14"

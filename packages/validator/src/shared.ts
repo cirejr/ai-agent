@@ -1,48 +1,56 @@
 export type Result<T, E> = { ok: true, value: T } | { ok: false, error: E }
-
 export type JsonSchema =
-  | ObjectSchema
-  | ArraySchema
   | StringSchema
   | NumberSchema
   | BooleanSchema
   | NullSchema
+  | ArraySchema<JsonSchema>
+  | ObjectSchema<Record<string, JsonSchema>>
 
-export type ObjectSchema = {
+export interface ObjectSchema<P extends Record<string, JsonSchema>> {
   type: "object",
-  properties: Record<string, JsonSchema>
+  properties: P,
   enum?: unknown[],
   value?: unknown
   required?: string[],
 }
 
-export type ArraySchema = {
+export interface ArraySchema<ItemSchema extends JsonSchema> {
   type: "array",
-  items: JsonSchema,
+  items: ItemSchema,
   enum?: unknown[],
   value?: unknown
 }
 
-export type StringSchema = {
+export interface StringSchema {
   type: "string",
-  enum?: unknown[],
+  enum?: string[],
   value?: string
 }
 
-export type NumberSchema = {
+export interface NumberSchema {
   type: "number" | "integer",
-  enum?: unknown[],
+  enum?: number[],
   value?: number
 }
 
-export type BooleanSchema = {
+export interface BooleanSchema {
   type: "boolean",
   enum?: boolean[]
   value?: boolean
 }
 
-export type NullSchema = {
+export interface NullSchema {
   type: "null",
   enum?: [null]
   value?: null
 }
+
+export type TypeOf<Schema extends JsonSchema> =
+   Schema extends StringSchema ? string :
+   Schema extends NumberSchema ? number :
+   Schema extends BooleanSchema ? boolean :
+   Schema extends NullSchema ? null :
+   Schema extends ArraySchema<infer ItemSchema> ? TypeOf<ItemSchema>[] :
+   Schema extends ObjectSchema<infer Properties> ? { [key in keyof Properties ]: TypeOf<Properties[key]> } :
+  never
