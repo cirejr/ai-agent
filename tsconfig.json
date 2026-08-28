@@ -1,15 +1,15 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
-    "target": "ES2023",
-    "lib": ["ES2023"],
-    "moduleResolution": "bundler",
-    "module": "es2022",
-    "baseUrl": ".",
-    "paths": {
-      "@/*" : ["./src/*"]
+    "compilerOptions": {
+        "strict": true,
+        "jsx": "react-jsx",
+        "jsxImportSource": "hono/jsx",
+        "target": "ES2023",
+        "lib": ["ES2023"],
+        "moduleResolution": "bundler",
+        "module": "es2022",
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
     }
-  }
 }

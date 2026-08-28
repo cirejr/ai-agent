@@ -45,12 +45,3 @@ export interface NullSchema {
   enum?: [null]
   value?: null
 }
-
-export type TypeOf<Schema extends JsonSchema> =
-   Schema extends StringSchema ? string :
-   Schema extends NumberSchema ? number :
-   Schema extends BooleanSchema ? boolean :
-   Schema extends NullSchema ? null :
-   Schema extends ArraySchema<infer ItemSchema> ? TypeOf<ItemSchema>[] :
-   Schema extends ObjectSchema<infer Properties> ? { [key in keyof Properties ]: TypeOf<Properties[key]> } :
-  never

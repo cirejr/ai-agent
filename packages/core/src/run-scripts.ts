@@ -130,3 +130,45 @@ console.log("has read_file", registry.get("grep")?.name)
 
 //const file = Bun.file("/mnt/c/Users/D E L L/Downloads/Subnetting_Blueprint.pdf")
 //
+//
+//
+export function actualTypeOf(v: unknown) {
+  const type = typeof v
+  if (type === "object") {
+    if (Array.isArray(v)) return "array"
+    if (v == null) return "null"
+  }
+
+  return type
+}
+const entry = "hello"
+const type = actualTypeOf(entry)
+
+console.log("type :", type)
+
+const data = ["John", "Jane", "Bob"]
+const schemaOfData = {
+  type: "array",
+  items: { type: "string" }
+}
+const dataO = {
+  name: "John",
+  age: 25
+}
+
+const SchemaOfData0 = object({
+  name: StringSchema,
+  age: NumberSchema
+})
+
+/* for (const [k, v] of data.entries()) {
+  console.log("array item's entry :", [k, v])
+  console.log("typeof v:", typeof v)
+  console.log(data[k])
+} */
+
+
+for (const k of Object.keys(dataO)) {
+  console.log("object item's entry :", k)
+  console.log(dataO[k])
+}
