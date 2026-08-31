@@ -61,6 +61,10 @@ export class ArraySchema<ItemSchema extends Schema<any>> extends Schema<TypeOf<I
   }
 }
 
+type Prettify<T> = {
+  [K in keyof T]: T[K]
+} & {}
+
 type OptionalKeys<Properties> = {
   [Key in keyof Properties]: Properties[Key] extends OptionalSchema<any> ? Key : never
   }[keyof Properties]
@@ -71,11 +75,11 @@ type RequiredKeys<Properties extends Record<string, Schema<any>>> = {
 
 type ObjectOuput<
   Properties extends Record<string, Schema<unknown>>
-> = {
+> = Prettify<{
     [Key in RequiredKeys<Properties>]: TypeOf<Properties[Key]>
   } & {
-  [Key in OptionalKeys<Properties>]?: TypeOf<Properties[Key]>
-}
+  [Key in OptionalKeys<Properties>]?: Exclude<TypeOf<Properties[Key]>, undefined>
+}>
 
 export class ObjectSchema<Properties extends Record<string, Schema<any>>> extends Schema<ObjectOuput<Properties>> {
   type= "object" as const
