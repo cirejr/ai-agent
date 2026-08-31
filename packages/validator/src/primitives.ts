@@ -1,14 +1,14 @@
 import { actualTypeOf, isRecord } from "./guards"
 
-export abstract class Schema {
-  abstract parse(v: unknown): unknown
+export abstract class Schema<Output> {
+  abstract parse(v: unknown): Output
 
   optional() {
     return new OptionalSchema(this)
   }
 }
 
-export class StringSchema extends Schema {
+export class StringSchema extends Schema<string> {
   type = "string" as const
   parse(v: unknown): string {
     if (typeof v !== "string") {
@@ -18,7 +18,7 @@ export class StringSchema extends Schema {
   }
 }
 
-export class NumberSchema extends Schema {
+export class NumberSchema extends Schema<number> {
   type= "number" as const
   parse(v: unknown): number {
     if (typeof v !== "number") {
@@ -28,7 +28,7 @@ export class NumberSchema extends Schema {
   }
 }
 
-export class BooleanSchema extends Schema {
+export class BooleanSchema extends Schema<boolean> {
   type= "boolean" as const
   parse(v: unknown): boolean {
     if(typeof v !== "boolean") throw new Error("Expected a boolean")
@@ -36,7 +36,7 @@ export class BooleanSchema extends Schema {
   }
 }
 
-export class NullSchema extends Schema {
+export class NullSchema extends Schema<null> {
   type= "null" as const
   parse(v: unknown): null {
     if (actualTypeOf(v) !== "null") throw new Error("Expected null")
@@ -44,13 +44,13 @@ export class NullSchema extends Schema {
   }
 }
 
-export class ArraySchema<ItemSchema extends Schema> extends Schema {
+export class ArraySchema<ItemSchema extends Schema<any>> extends Schema<TypeOf<ItemSchema>[]> {
   type= "array" as const
   constructor(public items: ItemSchema) {
     super()
   }
 
-  parse(v: unknown) {
+  parse(v: unknown): TypeOf<ItemSchema>[] {
     if (!Array.isArray(v)) throw new Error(`Expected an array`)
 
     for (const item of v) {
@@ -61,27 +61,43 @@ export class ArraySchema<ItemSchema extends Schema> extends Schema {
   }
 }
 
-export class ObjectSchema<Properties extends Record<string, Schema>> extends Schema {
+type OptionalKeys<Properties> = {
+  [Key in keyof Properties]: Properties[Key] extends OptionalSchema<any> ? Key : never
+  }[keyof Properties]
+
+type RequiredKeys<Properties extends Record<string, Schema<any>>> = {
+  [Key in keyof Properties]: Properties[Key] extends OptionalSchema<any> ? never : Key
+  }[keyof Properties]
+
+type ObjectOuput<
+  Properties extends Record<string, Schema<unknown>>
+> = {
+    [Key in RequiredKeys<Properties>]: TypeOf<Properties[Key]>
+  } & {
+  [Key in OptionalKeys<Properties>]?: TypeOf<Properties[Key]>
+}
+
+export class ObjectSchema<Properties extends Record<string, Schema<any>>> extends Schema<ObjectOuput<Properties>> {
   type= "object" as const
   constructor(public properties: Properties) { //properties -> { "name": StringSchema, "age": NumberSchema }
     super()
   }
-  parse(v: unknown) {
+  parse(v: unknown): ObjectOuput<Properties> {
     if (!isRecord(v)) throw new Error("Expected an object")
     for (const [key, schema] of Object.entries(this.properties)) {
       schema.parse(v[key])
     }
 
-    return v
+    return v as ObjectOuput<Properties>
   }
 }
 
-export class OptionalSchema<InnerSchema extends Schema> extends Schema {
+export class OptionalSchema<InnerSchema extends Schema<TypeOf<InnerSchema>>> extends Schema<TypeOf <InnerSchema> | undefined> {
   constructor(public inner: InnerSchema) {
     super()
   }
 
-  parse(v: unknown): unknown {
+  parse(v: unknown) {
     if (v === undefined) return undefined
     return this.inner.parse(v)
   }
@@ -106,11 +122,11 @@ export class YusraValidator {
     return new NullSchema()
   }
 
-  object<Properties extends Record<string, Schema>>(properties: Properties) {
+  object<Properties extends Record<string, Schema<any>>>(properties: Properties) {
     return new ObjectSchema(properties)
   }
 
-  array<ItemSchema extends Schema>(items: ItemSchema) {
+  array<ItemSchema extends Schema<any>>(items: ItemSchema) {
     return new ArraySchema(items)
   }
 }
@@ -124,11 +140,18 @@ const userSchema = yus.object({
 
 type User = TypeOf<typeof userSchema>
 
-export type TypeOf<Schema> =
+/* console.log("parse result : ",userSchema.parse({
+  name: "Jane",
+  hobbies: ["dancing", "reading"]
+})
+) */
+/* export type TypeOf<Schema> =
    Schema extends StringSchema ? string :
    Schema extends NumberSchema ? number :
    Schema extends BooleanSchema ? boolean :
    Schema extends NullSchema ? null :
    Schema extends ArraySchema<infer ItemSchema> ? TypeOf<ItemSchema>[] :
    Schema extends ObjectSchema<infer Properties> ? { [key in keyof Properties ]: TypeOf<Properties[key]> } :
-  never
+  never */
+
+  export type TypeOf<S extends Schema<any>> = S extends Schema<infer T> ? T : never

@@ -1,6 +1,7 @@
 import { invalidResponse, type SchemaError } from "./errors";
 import { actualTypeOf, isOneOf, isRecord, matchJsTypes } from "./guards";
-import type { JsonSchema, Result, TypeOf } from "./shared";
+import type { TypeOf } from "./primitives";
+import type { JsonSchema, Result } from "./shared";
 
 export function parse<T extends JsonSchema>(data: unknown, schema: T, path: (string | number)[] = []): Result<TypeOf<T>, SchemaError> {
 
