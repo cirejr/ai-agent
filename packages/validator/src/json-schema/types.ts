@@ -1,4 +1,5 @@
 export type Result<T, E> = { ok: true, value: T } | { ok: false, error: E }
+
 export type JsonSchema =
   | StringSchema
   | NumberSchema
@@ -45,3 +46,12 @@ export interface NullSchema {
   enum?: [null]
   value?: null
 }
+
+export type TypeOf<Schema> =
+   Schema extends StringSchema ? string :
+   Schema extends NumberSchema ? number :
+   Schema extends BooleanSchema ? boolean :
+   Schema extends NullSchema ? null :
+   Schema extends ArraySchema<infer ItemSchema> ? TypeOf<ItemSchema>[] :
+   Schema extends ObjectSchema<infer Properties> ? { [key in keyof Properties ]: TypeOf<Properties[key]> } :
+  never

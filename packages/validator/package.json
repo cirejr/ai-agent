@@ -8,6 +8,7 @@
     "./*": "./src/*.ts"
   },
   "devDependencies": {
-    "@tsconfig/bun": "^1.0.10"
+    "@tsconfig/bun": "^1.0.10",
+    "typescript": "^6.0"
   }
 }

@@ -1,4 +1,3 @@
-import type { JsonSchema } from "./shared"
 
 export function isRecord(v: unknown): v is Record<string, unknown> {
   if (v == null || typeof v !== "object") {
@@ -8,7 +7,7 @@ export function isRecord(v: unknown): v is Record<string, unknown> {
   return true
 }
 
-export function isOneOf(v: unknown, array: unknown[]) {
+export function isOneOf(v: unknown, array: readonly unknown[]) {
   if (!array.includes(v)) return false
 
   return true
@@ -22,9 +21,4 @@ export function actualTypeOf(v: unknown) {
   }
 
   return type
-}
-
-export function matchJsTypes(t: JsonSchema["type"]) {
-  if (t === "integer") return "number"
-  return t
 }
