@@ -1,10 +1,10 @@
 import * as ts from "typescript";
 import { files } from "./files";
 import { convertType, toPrimitiveNode } from "./utils";
-import type { ReferenceNode, Schema } from "./types";
+import type { OptionalNode, ReferenceNode, Schema } from "./types";
 
-//TODO: Fix literal cases working for other types rather than string alone -> .text isn't the way
-// Fix optional cases -> look into questionToken
+//TODO: Fix literal cases working for other types rather than string alone -> .text isn't the way // DONE.
+// Fix optional cases -> look into questionToken // DONE
 // Fix recursive check in objects not just top level.
 // tuple support
 // intersection support
@@ -55,15 +55,25 @@ function visit(node: ts.Node, checker: ts.TypeChecker) {
   }
 
     ts.forEachChild(node, (child) => visit(child, checker))
-    console.log("schema:", schema)
+    console.log("schema:", JSON.stringify(schema, null, 2))
 }
 
 function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker: ts.TypeChecker, schema: Schema) {
-  console.log("members", members[0].name?.getText())
   for (const member of members) {
     if (!ts.isPropertySignature(member) || !member.type) {
       continue
     }
+
+    if (member.questionToken) {
+      const propertyType = {
+        kind: "optional",
+        type: convertType(member.type, checker)
+      } satisfies OptionalNode
+      const propertyName = member.name.getText()
+      schema.properties![propertyName] = propertyType
+      continue
+    }
+
     const propertyName = member.name.getText()
     const propertyType = convertType(member.type, checker)
     schema.properties![propertyName] = propertyType
@@ -71,7 +81,6 @@ function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker: ts.Ty
 }
 
 function tsTypesToYus(propertyType: ts.TypeNode) {
-  //console.log("typeNode:", propertyType?.type.elementType)
   switch (ts.SyntaxKind[propertyType.kind]) {
     case "StringKeyword": {
       return { type: "yus.string()", innerType: undefined }

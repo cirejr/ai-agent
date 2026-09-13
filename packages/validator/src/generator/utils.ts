@@ -3,14 +3,12 @@ import type { ArrayNode, EnumNode, LiteralNode, ObjectNode, OptionalNode, Primit
 
 export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): SchemaNode {
   if (ts.SyntaxKind[typeNode.kind] === "ArrayType") {
-
     const items = toPrimitiveNode(typeNode?.elementType, checker)
     return {
       kind: "array",
       items
     } satisfies ArrayNode
   }
-
 
   if (ts.SyntaxKind[typeNode.kind] === "LiteralType") {
     const literal = typeNode.literal!
@@ -53,10 +51,8 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): Sch
     let types = []
     for (const type of typeNode.types) {
       const schemaNode = convertType(type, checker)
-      console.log(schemaNode)
       types.push(schemaNode)
     }
-    console.log("types", types)
     return {
       kind: "union",
       types
