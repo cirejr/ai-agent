@@ -1,8 +1,13 @@
 import * as ts from "typescript";
 import type { ArrayNode, EnumNode, LiteralNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, Schema, SchemaNode, UnionNode } from "./types";
+import { convertProperties } from "./ts-to-schema";
 
 export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): SchemaNode {
-  if (ts.SyntaxKind[typeNode.kind] === "ArrayType") {
+  if (ts.isTypeLiteralNode(typeNode)) {
+    return convertObject(typeNode, checker)
+  }
+
+  if (ts.isArrayTypeNode(typeNode)) {
     const items = toPrimitiveNode(typeNode?.elementType, checker)
     return {
       kind: "array",
@@ -10,7 +15,7 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): Sch
     } satisfies ArrayNode
   }
 
-  if (ts.SyntaxKind[typeNode.kind] === "LiteralType") {
+  if (ts.isLiteralTypeNode(typeNode)) {
     const literal = typeNode.literal!
 
     if (literal.kind === ts.SyntaxKind.TrueKeyword) {
@@ -43,11 +48,11 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): Sch
 
     return {
       kind: "literal",
-      value: literal.text
+      value: literal.getText()
     }
   }
 
-  if (ts.SyntaxKind[typeNode.kind] === "UnionType") {
+  if (ts.isUnionTypeNode(typeNode)) {
     let types = []
     for (const type of typeNode.types) {
       const schemaNode = convertType(type, checker)
@@ -59,7 +64,7 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): Sch
     } satisfies UnionNode
   }
 
-  if (ts.SyntaxKind[typeNode.kind] === "TypeReference") {
+  if (ts.isTypeReferenceNode(typeNode)) {
       const propertyName = typeNode.typeName.getText()
       const nodeName = toSchemaName(propertyName)
       return {
@@ -69,6 +74,16 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): Sch
   }
 
   return toPrimitiveNode(typeNode, checker)
+}
+
+export function convertObject(
+  node: ts.TypeLiteralNode,
+  checker: ts.TypeChecker
+): ObjectNode {
+  return {
+    kind: "object",
+    properties: convertProperties(node.members, checker)
+  }
 }
 
 function toSchemaName(typeName: string): string {

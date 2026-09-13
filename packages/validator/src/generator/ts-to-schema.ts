@@ -1,11 +1,11 @@
 import * as ts from "typescript";
 import { files } from "./files";
 import { convertType, toPrimitiveNode } from "./utils";
-import type { OptionalNode, ReferenceNode, Schema } from "./types";
+import type { OptionalNode, ReferenceNode, Schema, SchemaNode } from "./types";
 
 //TODO: Fix literal cases working for other types rather than string alone -> .text isn't the way // DONE.
 // Fix optional cases -> look into questionToken // DONE
-// Fix recursive check in objects not just top level.
+// Fix recursive check in objects not just top level. // DONE
 // tuple support
 // intersection support
 
@@ -31,74 +31,50 @@ function visit(node: ts.Node, checker: ts.TypeChecker) {
      return;
   }
 
-  const schema = {
+  const schema: Schema = {
     name: "",
     properties: {},
     type: undefined
-  } satisfies Schema
+  }
 
   if (ts.isInterfaceDeclaration(node)) {
     schema.name = toSchemaName(node.name.text)
-    convertProperties(node.members, checker, schema)
+    schema.properties = convertProperties(node.members, checker)
   }
 
   if (ts.isTypeAliasDeclaration(node)) {
     schema.name = toSchemaName(node.name.text)
 
     if (ts.isTypeLiteralNode(node.type)) {
-
-      convertProperties(node.type.members, checker, schema)
+      schema.properties = convertProperties(node.type.members, checker)
+    } else {
+      schema.type = convertType(node.type, checker)
     }
 
-    const result = convertType(node.type, checker)
-    schema.type = result
   }
 
     ts.forEachChild(node, (child) => visit(child, checker))
-    console.log("schema:", JSON.stringify(schema, null, 2))
+    console.log("schema:", schema)
 }
 
-function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker: ts.TypeChecker, schema: Schema) {
+export function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker: ts.TypeChecker) {
+  let properties: Record<string, SchemaNode> = {}
   for (const member of members) {
     if (!ts.isPropertySignature(member) || !member.type) {
-      continue
-    }
-
-    if (member.questionToken) {
-      const propertyType = {
-        kind: "optional",
-        type: convertType(member.type, checker)
-      } satisfies OptionalNode
-      const propertyName = member.name.getText()
-      schema.properties![propertyName] = propertyType
+      properties = {}
       continue
     }
 
     const propertyName = member.name.getText()
     const propertyType = convertType(member.type, checker)
-    schema.properties![propertyName] = propertyType
-  }
-}
 
-function tsTypesToYus(propertyType: ts.TypeNode) {
-  switch (ts.SyntaxKind[propertyType.kind]) {
-    case "StringKeyword": {
-      return { type: "yus.string()", innerType: undefined }
+    properties[propertyName] = member.questionToken ? {
+      kind: "optional",
+      type: convertType(member.type, checker)
+    } satisfies OptionalNode : propertyType
 
-    }
-    case "NumberKeyword": {
-      return {type: "yus.number()", innerType: undefined }
-    }
-    case "BooleanKeyword": {
-      return {type: "yus.boolean()", innerType: undefined }
-    }
-    case "ArrayType": {
-      return {type: "yus.array()"}
-    }
-    case "UnionType": {
-      return {type: "yus.union()"}
-    }
   }
+    return properties
 }
 
 /* function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker) {
