@@ -1,13 +1,14 @@
 import * as ts from "typescript";
 import { files } from "./files";
-import { yus } from "../yusra";
-import type { SHA384 } from "bun";
+import { convertType, toPrimitiveNode } from "./utils";
+import type { ReferenceNode, Schema } from "./types";
 
-interface Schema {
-  name: string,
-  properties?: Record<string, unknown>
-  type?: unknown
-}
+//TODO: Fix literal cases working for other types rather than string alone -> .text isn't the way
+// Fix optional cases -> look into questionToken
+// Fix recursive check in objects not just top level.
+// tuple support
+// intersection support
+
 export async function toSchema(files: string[], options: ts.CompilerOptions) {
   console.log("files", files)
   let program = ts.createProgram(files, options)
@@ -20,12 +21,6 @@ export async function toSchema(files: string[], options: ts.CompilerOptions) {
     visit(sourceFile, checker)
 
   }
-  /* const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed })
-    console.log("fileName", sourceFile?.fileName)
-    ts.forEachChild(sourceFile!, node => {
-      console.log("node", node.kind)
-    })
-  } */
 }
 
 toSchema(files, {})
@@ -39,40 +34,44 @@ function visit(node: ts.Node, checker: ts.TypeChecker) {
   const schema = {
     name: "",
     properties: {},
-    type: ""
+    type: undefined
   } satisfies Schema
 
   if (ts.isInterfaceDeclaration(node)) {
     schema.name = toSchemaName(node.name.text)
     convertProperties(node.members, checker, schema)
   }
+
   if (ts.isTypeAliasDeclaration(node)) {
+    schema.name = toSchemaName(node.name.text)
 
-      schema.name = toSchemaName(node.name.text)
-      if (ts.isTypeLiteralNode(node.type)) {
-        convertProperties(node.type.members, checker, schema)
-      }
+    if (ts.isTypeLiteralNode(node.type)) {
 
-      const result = convertType(node.type, checker)
-      schema.type = result?.type as string
-
+      convertProperties(node.type.members, checker, schema)
     }
+
+    const result = convertType(node.type, checker)
+    schema.type = result
+  }
+
     ts.forEachChild(node, (child) => visit(child, checker))
     console.log("schema:", schema)
 }
 
 function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker: ts.TypeChecker, schema: Schema) {
+  console.log("members", members[0].name?.getText())
   for (const member of members) {
     if (!ts.isPropertySignature(member) || !member.type) {
       continue
     }
     const propertyName = member.name.getText()
-    const propertyType = convertType(member.type, checker)?.type
+    const propertyType = convertType(member.type, checker)
     schema.properties![propertyName] = propertyType
   }
 }
 
 function tsTypesToYus(propertyType: ts.TypeNode) {
+  //console.log("typeNode:", propertyType?.type.elementType)
   switch (ts.SyntaxKind[propertyType.kind]) {
     case "StringKeyword": {
       return { type: "yus.string()", innerType: undefined }
@@ -93,13 +92,13 @@ function tsTypesToYus(propertyType: ts.TypeNode) {
   }
 }
 
-function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker) {
+/* function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker) {
   if (ts.isTypeReferenceNode(typeNode)) {
     return convertTypeReference(typeNode, checker)
   }
 
   return tsTypesToYus(typeNode)
-}
+} */
 
 function convertTypeReference(typeNode: ts.TypeNode, checker: ts.TypeChecker) {
   const type = checker.getTypeAtLocation(typeNode)
@@ -112,7 +111,7 @@ function convertTypeReference(typeNode: ts.TypeNode, checker: ts.TypeChecker) {
   }
 }
 
-function primitivesToYus(flag: ts.TypeFlags){
+function primitivesToYus(flag: ts.TypeFlags) {
   switch (ts.TypeFlags[flag]) {
     case "String":{
       return { type: "yus.string()" }
