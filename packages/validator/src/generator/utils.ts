@@ -1,8 +1,19 @@
 import * as ts from "typescript";
-import type { ArrayNode, EnumNode, LiteralNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, Schema, SchemaNode, TupleNode, UnionNode } from "./types";
+import type { ArrayNode, EnumNode, IntersectionNode, LiteralNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, Schema, SchemaNode, TupleNode, UnionNode } from "./types";
 import { convertProperties } from "./ts-to-schema";
 
 export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): SchemaNode {
+
+  if (ts.isIntersectionTypeNode(typeNode)) {
+    let types= []
+    for (const type of typeNode.types) {
+      types.push(convertType(type, checker))
+    }
+    return {
+      kind: "intersection",
+      types
+    } satisfies IntersectionNode
+  }
 
   if (ts.isTupleTypeNode(typeNode)) {
     let elements = []
@@ -64,7 +75,7 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): Sch
       }
     }
 
-    throw new Error(`Unsupported literal: ${literal.getText()}`)
+    //throw new Error(`Unsupported literal: ${literal.getText()}`)
   }
 
   if (ts.isUnionTypeNode(typeNode)) {
@@ -132,5 +143,5 @@ export function toPrimitiveNode(typeNode: ts.TypeNode, checker: ts.TypeChecker):
     }
   }
 
-  throw new Error(`Unsupported type: ${typeNode.getText()} `)
+  //throw new Error(`Unsupported type: ${typeNode.getText()} `)
 }
