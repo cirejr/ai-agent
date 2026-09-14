@@ -35,9 +35,17 @@ type Optional = {
   }
 } */
 
-type Tuple = {
+/* type Tuple = {
   random:["foo", 42],
   random1: [string, "foo"],
   random2:[{ name: string }, boolean[]],
   random3: [string | number, boolean]
+} */
+
+type Person = {
+  age: number
+} & BasicInfo
+
+type BasicInfo = {
+  name: string
 }
