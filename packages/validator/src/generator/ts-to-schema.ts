@@ -6,7 +6,7 @@ import type { OptionalNode, ReferenceNode, Schema, SchemaNode } from "./types";
 //TODO: Fix literal cases working for other types rather than string alone -> .text isn't the way // DONE.
 // Fix optional cases -> look into questionToken // DONE
 // Fix recursive check in objects not just top level. // DONE
-// tuple support
+// tuple support // DONE
 // intersection support
 
 export async function toSchema(files: string[], options: ts.CompilerOptions) {
@@ -54,7 +54,7 @@ function visit(node: ts.Node, checker: ts.TypeChecker) {
   }
 
     ts.forEachChild(node, (child) => visit(child, checker))
-    console.log("schema:", schema)
+    console.log("schema:", JSON.stringify(schema, null, 2))
 }
 
 export function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker: ts.TypeChecker) {

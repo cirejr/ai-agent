@@ -27,10 +27,17 @@ type Optional = {
 }
  */
 
-type Optional = {
+/* type Optional = {
   value?: string[]
   status?: "active" | "inactive"
   user?: {
     name: string
   }
+} */
+
+type Tuple = {
+  random:["foo", 42],
+  random1: [string, "foo"],
+  random2:[{ name: string }, boolean[]],
+  random3: [string | number, boolean]
 }
