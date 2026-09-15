@@ -1,4 +1,4 @@
-/* type User = {
+type User = {
   sex: "male"
   name: string
   age?: number
@@ -25,7 +25,7 @@ type E = null
 type Optional = {
   age?: number
 }
- */
+
 
 /* type Optional = {
   value?: string[]
@@ -35,17 +35,15 @@ type Optional = {
   }
 } */
 
-/* type Tuple = {
+type Tuple = {
   random:["foo", 42],
   random1: [string, "foo"],
   random2:[{ name: string }, boolean[]],
   random3: [string | number, boolean]
-} */
+}
 
-type Person = {
-  age: number
-} & BasicInfo
-
-type BasicInfo = {
-  name: string
+enum Status {
+  Pending,
+  Active,
+  Disabled
 }

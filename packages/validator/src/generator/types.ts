@@ -2,8 +2,7 @@ export type Primitives = "string" | "number" | "boolean" | "null"
 
 export interface Schema {
   name: string,
-  properties?: Record<string, SchemaNode>
-  type?: SchemaNode
+  type: SchemaNode
 }
 
 export interface PrimitiveNode {
@@ -48,7 +47,10 @@ export interface OptionalNode {
 
 export interface EnumNode {
   kind: "enum",
-  types: SchemaNode[]
+  members: {
+    name: string,
+    value: string | number
+  }[]
 }
 
 export interface ReferenceNode {
