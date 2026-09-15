@@ -49,7 +49,7 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): Sch
   }
 
   if (ts.isArrayTypeNode(typeNode)) {
-    const items = toPrimitiveNode(typeNode?.elementType, checker)
+    const items = convertType(typeNode?.elementType, checker)
     return {
       kind: "array",
       items
@@ -162,7 +162,7 @@ export function toPrimitiveNode(typeNode: ts.TypeNode, checker: ts.TypeChecker):
     }
   }
 
-  throw new Error(`Unsupported type: ${typeNode.getText()} `)
+  //throw new Error(`Unsupported type: ${typeNode.getText()} `)
 }
 
 

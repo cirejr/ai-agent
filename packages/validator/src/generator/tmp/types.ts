@@ -1,12 +1,9 @@
-type User = {
+/* type User = {
   sex: "male"
   name: string
   age?: number
   active: boolean
   id: UserId
-  hobbies: string[]
-  status: "active" | "inactive"
-  adress: UserAdress
 }
 
 type UserId = string
@@ -23,17 +20,12 @@ type E = null
 
 
 type Optional = {
-  age?: number
-}
-
-
-/* type Optional = {
   value?: string[]
   status?: "active" | "inactive"
   user?: {
     name: string
   }
-} */
+}
 
 type Tuple = {
   random:["foo", 42],
@@ -47,3 +39,9 @@ enum Status {
   Active,
   Disabled
 }
+ */
+type A = { a: string }
+type B = { b: number }
+type C = { c: boolean }
+
+type D = A & (B & C)
