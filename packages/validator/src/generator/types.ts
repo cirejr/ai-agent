@@ -1,8 +1,8 @@
 export type Primitives = "string" | "number" | "boolean" | "null"
 
-export interface Schema {
+export interface IR {
   name: string,
-  type: SchemaNode
+  type: IRNode
 }
 
 export interface PrimitiveNode {
@@ -12,7 +12,7 @@ export interface PrimitiveNode {
 
 export interface ArrayNode {
   kind: "array",
-  items:  SchemaNode
+  items:  IRNode
 }
 
 export interface LiteralNode {
@@ -22,27 +22,35 @@ export interface LiteralNode {
 
 export interface UnionNode {
   kind: "union",
-  types: SchemaNode[]
+  types: IRNode[]
 }
 
 export interface ObjectNode {
   kind: "object",
-  properties: Record<string, SchemaNode>
+  properties: Record<string, IRNode>
 }
 
 export interface TupleNode {
   kind: "tuple",
-  elements: SchemaNode[]
+  elements: IRNode[]
 }
 
 export interface IntersectionNode {
   kind: "intersection",
-  types: SchemaNode[]
+  types: IRNode[]
 }
 
 export interface OptionalNode {
   kind: "optional",
-  type: SchemaNode
+  type: IRNode
+}
+
+export interface UnknownNode {
+  kind: "unknown",
+}
+
+export interface AnyNode {
+  kind: "any",
 }
 
 export interface EnumNode {
@@ -58,7 +66,7 @@ export interface ReferenceNode {
   name: string
 }
 
-export type SchemaNode =
+export type IRNode =
   | PrimitiveNode
   | LiteralNode
   | ReferenceNode
@@ -69,3 +77,5 @@ export type SchemaNode =
   | ObjectNode
   | ArrayNode
   | UnionNode
+  | UnknownNode
+  | AnyNode

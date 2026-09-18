@@ -34,14 +34,14 @@ type Tuple = {
   random3: [string | number, boolean]
 }
 
+ */
 enum Status {
   Pending,
   Active,
   Disabled
 }
- */
-type A = { a: string }
+/* type A = { a: string }
 type B = { b: number }
 type C = { c: boolean }
 
-type D = A & (B & C)
+type D = A & (B & C) */

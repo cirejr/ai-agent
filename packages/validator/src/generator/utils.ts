@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import type { ArrayNode, EnumNode, IntersectionNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, Schema, SchemaNode, TupleNode, UnionNode } from "./types";
+import type { ArrayNode, EnumNode, IntersectionNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, IR, IRNode, TupleNode, UnionNode } from "./types";
 
 
 export function convertEnum(members: ts.NodeArray<ts.EnumMember>, checker: ts.TypeChecker) {
@@ -21,7 +21,20 @@ export function convertEnum(members: ts.NodeArray<ts.EnumMember>, checker: ts.Ty
   } satisfies EnumNode
 }
 
-export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): SchemaNode {
+export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRNode {
+
+  const type = checker.getTypeAtLocation(typeNode)
+  if (typeNode.kind == ts.SyntaxKind.AnyKeyword || type.flags & ts.TypeFlags.Any) {
+    return {
+      kind : "any"
+    }
+  }
+
+  if (typeNode.kind == ts.SyntaxKind.UnknownKeyword || type.flags & ts.TypeFlags.Unknown) {
+    return {
+      kind : "unknown"
+    }
+  }
 
   if (ts.isIntersectionTypeNode(typeNode)) {
     let types= []
@@ -94,7 +107,7 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): Sch
       }
     }
 
-    throw new Error(`Unsupported literal: ${literal.getText()}`)
+    console.error(`Unsupported literal: ${literal.getText()}`)
   }
 
   if (ts.isUnionTypeNode(typeNode)) {
@@ -111,7 +124,7 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): Sch
 
   if (ts.isTypeReferenceNode(typeNode)) {
       const propertyName = typeNode.typeName.getText()
-      const nodeName = toSchemaName(propertyName)
+      const nodeName = toIRName(propertyName)
       return {
         kind: "reference",
         name: nodeName
@@ -131,16 +144,16 @@ export function convertObject(
   }
 }
 
-function toSchemaName(typeName: string): string {
+function toIRName(typeName: string): string {
   if (typeName.includes("type")) {
-    return typeName.replace("type", "Schema")
+    return typeName.replace("type", "IR")
   }
-  if (typeName.includes("Type")) return typeName.replace("Type", "Schema")
+  if (typeName.includes("Type")) return typeName.replace("Type", "IR")
 
-  return typeName.concat("Schema")
+  return typeName.concat("IR")
 }
 
-export function toPrimitiveNode(typeNode: ts.TypeNode, checker: ts.TypeChecker): SchemaNode {
+export function toPrimitiveNode(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRNode {
   const type = checker.getTypeAtLocation(typeNode)
   if(typeNode.kind === ts.SyntaxKind.StringKeyword || type.flags & ts.TypeFlags.String) {
       return { kind: "primitive" as const, type: "string"} satisfies PrimitiveNode
@@ -162,14 +175,14 @@ export function toPrimitiveNode(typeNode: ts.TypeNode, checker: ts.TypeChecker):
     }
   }
 
-  //throw new Error(`Unsupported type: ${typeNode.getText()} `)
+  console.error(`Unsupported type: ${ts.SyntaxKind[typeNode.kind]} `)
 }
 
 
-export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker) : Schema | undefined {
+export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker) : IR | undefined {
   if (ts.isEnumDeclaration(node)) {
     const schema = {
-      name: toSchemaName(node.name.text),
+      name: toIRName(node.name.text),
       type: convertEnum(node.members, checker)
     }
     return schema
@@ -177,11 +190,11 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker) : Sc
 
   if (ts.isInterfaceDeclaration(node)) {
     const schema = {
-      name: toSchemaName(node.name.text),
+      name: toIRName(node.name.text),
       type: {
         kind: "object",
         properties: convertProperties(node.members, checker)
-      } satisfies SchemaNode
+      } satisfies IRNode
     }
     return schema
   }
@@ -193,7 +206,7 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker) : Sc
     } : convertType(node.type, checker)
 
     const schema = {
-      name : toSchemaName(node.name.text),
+      name : toIRName(node.name.text),
       type
     }
     return schema
@@ -203,7 +216,7 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker) : Sc
 }
 
 export function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker: ts.TypeChecker) {
-  let type: Record<string, SchemaNode> = {}
+  let type: Record<string, IRNode> = {}
   for (const member of members) {
     if (!ts.isPropertySignature(member) || !member.type) {
       type = {}
