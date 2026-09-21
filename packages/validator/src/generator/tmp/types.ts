@@ -1,3 +1,9 @@
+
+import type { Model } from "../files";
+
+type LLMRequest = {
+  model: Model,
+}
 /* type User = {
   sex: "male"
   name: string
@@ -35,13 +41,25 @@ type Tuple = {
 }
 
  */
-enum Status {
+/* enum Status {
   Pending,
   Active,
   Disabled
-}
+} */
 /* type A = { a: string }
 type B = { b: number }
 type C = { c: boolean }
 
 type D = A & (B & C) */
+
+type New = {
+  data: Map<string, Model>
+}
+
+type MediaPart = {
+  type: "media"
+  id: string;
+  name: string;
+  mimeType: string;
+  data: string | Uint8Array // string either Base64 encoded data or dataUrl => data:mimeType+base64
+}

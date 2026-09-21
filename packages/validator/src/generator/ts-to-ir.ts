@@ -30,5 +30,5 @@ function visit(node: ts.Node, checker: ts.TypeChecker, ir: IR[]) {
   ts.forEachChild(node, (child) => visit(child, checker, ir))
 }
 
-const ir = typescriptToIR(["/home/cirejr/work/personal/ai-agent-demo/packages/llm/src/schema/messages.ts"], {})
+const ir = typescriptToIR(/* ["/home/cirejr/work/personal/ai-agent-demo/packages/llm/src/schema/messages.ts"] */ files, {})
 console.log("IR:", JSON.stringify(ir, null, 2))

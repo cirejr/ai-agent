@@ -108,4 +108,4 @@ console.log("result", JSON.stringify(result, null, 2))
   }
 } */
 
-await generateFile(["/home/cirejr/work/personal/ai-agent-demo/packages/llm/src/schema/results.ts"])
+await generateFile(["/home/cirejr/work/personal/ai-agent-demo/packages/llm/src/schema/errors.ts"])

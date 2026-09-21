@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import type { ArrayNode, EnumNode, IntersectionNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, IR, IRNode, TupleNode, UnionNode } from "./types";
+import type { ArrayNode, EnumNode, IntersectionNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, IR, IRNode, TupleNode, UnionNode, RecordNode, BuiltInNode, MapNode } from "./types";
 
 
 export function convertEnum(members: ts.NodeArray<ts.EnumMember>, checker: ts.TypeChecker) {
@@ -22,9 +22,9 @@ export function convertEnum(members: ts.NodeArray<ts.EnumMember>, checker: ts.Ty
 }
 
 export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRNode {
-
   const type = checker.getTypeAtLocation(typeNode)
-  if (typeNode.kind == ts.SyntaxKind.AnyKeyword || type.flags & ts.TypeFlags.Any) {
+
+  if (typeNode.kind == ts.SyntaxKind.AnyKeyword) {
     return {
       kind : "any"
     }
@@ -123,6 +123,39 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
   }
 
   if (ts.isTypeReferenceNode(typeNode)) {
+    //console.log("ref", typeNode.typeName)
+    if (ts.isIdentifier(typeNode.typeName)) {
+      const nodeName = typeNode.typeName.getText()
+      if ( nodeName === "Record" || nodeName === "Map") {
+        const [key, value] = typeNode.typeArguments ?? []
+
+        return {
+          kind: nodeName === "Record" ? "record" : "map",
+          key: convertType(key, checker),
+          value: convertType(value, checker)
+        } satisfies RecordNode | MapNode
+      }
+      const symbol = checker.getSymbolAtLocation(typeNode.typeName)
+
+      for (const declaration of symbol?.declarations ?? []) {
+        const sourceFile = declaration.getSourceFile()
+        if (sourceFile.isDeclarationFile) {
+          if (typeNode.typeArguments) {
+            const types = typeNode.typeArguments.map(t => convertType(t, checker))
+            return {
+              kind: "builtin",
+              name: typeNode.typeName.text,
+              typeArguments: types
+            } satisfies BuiltInNode
+
+          }
+          return {
+            kind: "builtin",
+            name: typeNode.typeName.text
+          } satisfies BuiltInNode
+        }
+      }
+    }
       const propertyName = typeNode.typeName.getText()
       const nodeName = toIRName(propertyName)
       return {

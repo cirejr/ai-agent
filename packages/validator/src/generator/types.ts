@@ -53,6 +53,18 @@ export interface AnyNode {
   kind: "any",
 }
 
+export interface RecordNode {
+  kind: "record",
+  key: IRNode,
+  value: IRNode
+}
+
+export interface MapNode {
+  kind: "map",
+  key: IRNode,
+  value: IRNode
+}
+
 export interface EnumNode {
   kind: "enum",
   members: {
@@ -64,6 +76,12 @@ export interface EnumNode {
 export interface ReferenceNode {
   kind: "reference",
   name: string
+}
+
+export interface BuiltInNode{
+  kind: "builtin",
+  name: string,
+  typeArguments? : IRNode[]
 }
 
 export type IRNode =
@@ -79,3 +97,6 @@ export type IRNode =
   | UnionNode
   | UnknownNode
   | AnyNode
+  | RecordNode
+  | BuiltInNode
+  | MapNode
