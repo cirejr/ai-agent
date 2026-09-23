@@ -1,21 +1,26 @@
-import type { Schema } from "../core";
+import { Schema } from "../core";
 import { yus } from "../yusra";
 import { expected } from "./tests/expected";
 import { typescriptToIR } from "./ts-to-ir";
 import type { IR, IRNode } from "./types";
 
 export async function generateFile(files: string[], options = {}) {
-  const ir = typescriptToIR(files, options)
-  const declarations = generateDeclaration(ir)
+  const fileImports = typescriptToIR(files, options)
+  for (const fileIR of fileImports) {
+
+  const declarations = generateDeclaration(fileIR.ir)
+  const imports = fileIR.imports.map(i => `import { ${i.importedName !== i.localName ? `${i.importedName.concat("Schema")} as ${i.localName.concat("Schema")}` : i.localName.concat("Schema")} } from "${i.from.concat(".schema")}"`)
+    console.log("imports", fileIR.file)
 
   const fileContent = [
     `import { yus } from "../yusra"; `,
+    ...imports,
+    "\n",
     ...declarations
     ].join("\n")
 
-  const file = await Bun.write("schemas.ts", fileContent)
-
-  return file
+    await Bun.write(`${fileIR.file.replace(".ts", ".schema.ts")}`, fileContent)
+  }
 }
 
 export function generateDeclaration(ir: IR[]) {
@@ -71,7 +76,7 @@ export function toSchema(node: IRNode): string {
 }
 
 const result = generateDeclaration(expected.complex)
-console.log("result", JSON.stringify(result, null, 2))
+//console.log("result", JSON.stringify(result, null, 2))
 
 /* export function irToYus(node: IRNode){
   switch (node.kind) {
@@ -108,4 +113,7 @@ console.log("result", JSON.stringify(result, null, 2))
   }
 } */
 
-await generateFile(["/home/cirejr/work/personal/ai-agent-demo/packages/llm/src/schema/errors.ts"])
+await generateFile(["/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/errors.ts",
+  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/results.ts",
+  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/model.ts",
+  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts",])

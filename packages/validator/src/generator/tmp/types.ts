@@ -1,5 +1,7 @@
 
 import type { Model } from "../files";
+import type { MediaPart } from "../files";
+import type { IRNode as Node } from "../types";
 
 type LLMRequest = {
   model: Model,
@@ -54,12 +56,4 @@ type D = A & (B & C) */
 
 type New = {
   data: Map<string, Model>
-}
-
-type MediaPart = {
-  type: "media"
-  id: string;
-  name: string;
-  mimeType: string;
-  data: string | Uint8Array // string either Base64 encoded data or dataUrl => data:mimeType+base64
 }

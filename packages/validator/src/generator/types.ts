@@ -1,3 +1,15 @@
+export interface ImportMetadata {
+  importedName: string,
+  localName: string,
+  from : string
+}
+
+export interface FileImport {
+  file: string,
+  imports: ImportMetadata[],
+  ir: IR[]
+}
+
 export type Primitives = "string" | "number" | "boolean" | "null"
 
 export interface IR {
