@@ -113,7 +113,9 @@ const result = generateDeclaration(expected.complex)
   }
 } */
 
-await generateFile(["/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/errors.ts",
+await generateFile([
+  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/errors.ts",
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/results.ts",
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/model.ts",
-  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts",])
+  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts",
+  ])

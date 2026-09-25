@@ -1,8 +1,9 @@
 export const files = [
   /* "packages/llm/src/schema/message.ts",
   "packages/llm/src/schema/openai-responses.ts", */
+  //"/home/cirejr/work/personel/ai-agent/packages/validator/src/generator/tmp/types.ts",
+  //"/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts",
   "/home/cirejr/work/personel/ai-agent/packages/validator/src/generator/tmp/types.ts",
-  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts",
 ]
 
 export type Model = {
