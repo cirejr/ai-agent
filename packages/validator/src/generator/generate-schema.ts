@@ -3,6 +3,7 @@ import { yus } from "../yusra";
 import { expected } from "./tests/expected";
 import { typescriptToIR } from "./ts-to-ir";
 import type { IR, IRNode } from "./types";
+import prettier from "prettier"
 
 export async function generateFile(files: string[], options = {}) {
   const fileImports = typescriptToIR(files, options)
@@ -19,7 +20,11 @@ export async function generateFile(files: string[], options = {}) {
     ...declarations
     ].join("\n")
 
-    await Bun.write(`${fileIR.file.replace(".ts", ".schema.ts")}`, fileContent)
+  const formatted = await prettier.format(fileContent, {
+    parser: "typescript",
+  })
+
+    await Bun.write(`${fileIR.file.replace(".ts", ".schema.ts")}`, formatted)
   }
 }
 
