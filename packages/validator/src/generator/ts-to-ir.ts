@@ -126,5 +126,5 @@ function reorder(
 }
 
 const ir = typescriptToIR(/* ["/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts"] */ files, {})
-/* const orderedIR = orderDeclarations(ir)
-console.log("IR:", JSON.stringify(orderedIR, null, 2)) */
+const orderedIR = orderDeclarations(ir)
+console.log("IR:", JSON.stringify(orderedIR, null, 2))

@@ -14,7 +14,19 @@ export type Primitives = "string" | "number" | "boolean" | "null"
 
 export interface IR {
   name: string,
-  type: IRNode
+  type: IRNode,
+  typeParameters?: TypeParameter[]
+}
+
+export interface TypeParameter {
+  name: string,
+  constraint?: IRNode,
+  default?: IRNode
+}
+
+export interface TypeParameterNode {
+  kind: "typeParameter",
+  name: string
 }
 
 export interface PrimitiveNode {
@@ -87,7 +99,8 @@ export interface EnumNode {
 
 export interface ReferenceNode {
   kind: "reference",
-  name: string
+  name: string,
+  typeArguments?: IRNode[]
 }
 
 export interface BuiltInNode{
@@ -112,3 +125,4 @@ export type IRNode =
   | RecordNode
   | BuiltInNode
   | MapNode
+  | TypeParameterNode

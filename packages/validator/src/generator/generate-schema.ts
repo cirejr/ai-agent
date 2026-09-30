@@ -20,10 +20,9 @@ export async function generateFile(files: string[], options = {}) {
     ...declarations
     ].join("\n")
 
-  const formatted = await prettier.format(fileContent, {
-    parser: "typescript",
-  })
-
+    const formatted = await prettier.format(fileContent, {
+      parser: "typescript",
+    })
     await Bun.write(`${fileIR.file.replace(".ts", ".schema.ts")}`, formatted)
   }
 }

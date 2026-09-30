@@ -57,6 +57,7 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
       elements
     } satisfies TupleNode
   }
+
   if (ts.isTypeLiteralNode(typeNode)) {
     return convertObject(typeNode, checker)
   }
@@ -124,6 +125,12 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
 
   if (ts.isTypeReferenceNode(typeNode)) {
     //console.log("ref", typeNode.typeName)
+    if (type.isTypeParameter()) {
+      return {
+        kind: "typeParameter",
+        name: typeNode.typeName.getText()
+      }
+    }
     if (ts.isIdentifier(typeNode.typeName)) {
       const nodeName = typeNode.typeName.getText()
       if ( nodeName === "Record" || nodeName === "Map") {
@@ -136,7 +143,6 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
         } satisfies RecordNode | MapNode
       }
       const symbol = checker.getSymbolAtLocation(typeNode.typeName)
-
       for (const declaration of symbol?.declarations ?? []) {
         const sourceFile = declaration.getSourceFile()
         if (sourceFile.isDeclarationFile) {
@@ -160,7 +166,8 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
       const nodeName = toIRName(propertyName)
       return {
         kind: "reference",
-        name: nodeName
+        name: nodeName,
+        typeArguments: typeNode.typeArguments && typeNode.typeArguments.map( arg => convertType(arg, checker))
       } satisfies ReferenceNode
   }
 
@@ -212,7 +219,7 @@ export function toPrimitiveNode(typeNode: ts.TypeNode, checker: ts.TypeChecker):
 }
 
 
-export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker) : IR | undefined {
+export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker): IR | undefined {
   if (ts.isEnumDeclaration(node)) {
     const schema = {
       name: toIRName(node.name.text),
@@ -222,12 +229,20 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker) : IR
   }
 
   if (ts.isInterfaceDeclaration(node)) {
+
     const schema = {
       name: toIRName(node.name.text),
+      typeParameters: node.typeParameters?.map(param => (
+        {
+          name: param.name.text,
+          constraint: param.constraint && convertType(param.constraint, checker),
+          default: param.default && convertType(param.default, checker)
+        }
+      )),
       type: {
         kind: "object",
-        properties: convertProperties(node.members, checker)
-      } satisfies IRNode
+        properties: convertProperties(node.members, checker),
+      } satisfies IRNode,
     }
     return schema
   }
@@ -240,7 +255,14 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker) : IR
 
     const schema = {
       name : toIRName(node.name.text),
-      type
+      typeParameters: node.typeParameters?.map(param => (
+        {
+          name: param.name.text,
+          constraint: param.constraint && convertType(param.constraint, checker),
+          default: param.default && convertType(param.default, checker)
+        }
+      )),
+      type,
     }
     return schema
   }
