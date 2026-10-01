@@ -21,7 +21,9 @@ export interface IR {
 export interface TypeParameter {
   name: string,
   constraint?: IRNode,
-  default?: IRNode
+  constraintText?: string
+  default?: IRNode,
+  defaultText?: string
 }
 
 export interface TypeParameterNode {

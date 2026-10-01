@@ -1,10 +1,13 @@
-import { yus } from "../yusra"; 
+import { yus } from "../yusra";
+import type { Schema } from "../../core";
 
-
-export const MediaPartSchema = yus.object({ type: yus.literal("media"), id: yus.string(), name: yus.string(), mimeType: yus.string(), data: yus.union([yus.string(), ]) })
-export const ModelSchema = yus.object({ id: yus.string(), media: MediaPartSchema })
-export const LLMRequestSchema = yus.object({ model: ModelSchema })
-export const NewSchema = yus.object({ data: undefined })
-export const CSchema = yus.string()
-export const BSchema = yus.object({ y: CSchema })
-export const ASchema = yus.object({ x: yus.array(BSchema) })
+export const EventResultSchema = <T extends `event_${string}`, E = Error>(
+  T: Schema<T>,
+  E: Schema<E>,
+) =>
+  yus.union([
+    yus.object({ ok: yus.literal(true), value: T }),
+    yus.object({ ok: yus.literal(false), error: E }),
+  ]);
+export const StoreSchema = <T, K extends keyof T>(T: Schema<T>, K: Schema<K>) =>
+  yus.object({ item: T, key: K });

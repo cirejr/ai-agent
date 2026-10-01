@@ -1,5 +1,6 @@
 import { Schema } from "../core";
 import { yus } from "../yusra";
+import { files } from "./files";
 import { expected } from "./tests/expected";
 import { typescriptToIR } from "./ts-to-ir";
 import type { IR, IRNode } from "./types";
@@ -9,9 +10,13 @@ export async function generateFile(files: string[], options = {}) {
   const fileImports = typescriptToIR(files, options)
   for (const fileIR of fileImports) {
 
-  const declarations = generateDeclaration(fileIR.ir)
-  const imports = fileIR.imports.map(i => `import { ${i.importedName !== i.localName ? `${i.importedName.concat("Schema")} as ${i.localName.concat("Schema")}` : i.localName.concat("Schema")} } from "${i.from.concat(".schema")}"`)
+    const declarations = generateDeclaration(fileIR.ir)
+    const imports = fileIR.imports.map(i => `import { ${i.importedName !== i.localName ? `${i.importedName.concat("Schema")} as ${i.localName.concat("Schema")}` : i.localName.concat("Schema")} } from "${i.from.concat(".schema")}"`)
     console.log("imports", fileIR.file)
+
+    if (fileIR.ir.find(i => i.typeParameters !== undefined)) {
+      imports.push(`import type { Schema } from "../../core";`)
+    }
 
   const fileContent = [
     `import { yus } from "../yusra"; `,
@@ -29,8 +34,33 @@ export async function generateFile(files: string[], options = {}) {
 
 export function generateDeclaration(ir: IR[]) {
   return ir.map(item => (
-    `export const ${item.name.replace("IR", "Schema")} = ${toSchema(item.type)}`))
+    item.typeParameters ?
+      `export const ${item.name.replace("IR", "Schema")} = ${item.typeParameters !== undefined ? `<${item.typeParameters?.map(t => `${t.name }${t.constraintText ? ` extends ${t.constraintText}` : ""} ${t.defaultText ? `=${t.defaultText}` : ""}`).join(",")}> (
+      ${item.typeParameters.map(t => `${t.name}: Schema<${t.name}>`).join(", \n")}
+      ) ` : ""} => ${toSchema(item.type)}` :
+      `export const ${item.name.replace("IR", "Schema")} = ${ toSchema(item.type)}`
+  ))
 }
+
+/* export function typeOfNode(node: IRNode) {
+  switch (node.kind) {
+    case "any": {
+      return "any"
+    }
+    case "unknown": return "unknown"
+    case "array" : {
+      return typeOfNode(node.items)
+    }
+    case "builtin": {
+      if (node.typeArguments) {
+        return node.typeArguments.map( t => typeOfNode(t))
+      }
+      return node.name
+    }
+    case "primitive": return node.type
+    case "object" : return node.
+  }
+} */
 
 export function toSchema(node: IRNode): string {
   switch (node.kind) {
@@ -65,7 +95,7 @@ export function toSchema(node: IRNode): string {
     }
 
     case "reference": {
-      return node.name.replace("IR", "Schema")
+      return node.typeArguments ? `${node.name.replace("IR", "Schema")}(${node.typeArguments.map(t => t?.name.replace("IR", "Schema"))})` : node.name.replace("IR", "Schema")
     }
 
     case "intersection": {
@@ -76,6 +106,10 @@ export function toSchema(node: IRNode): string {
     case "tuple": {
       return `yus.tuple([${node.elements.map(toSchema).join(", ")}])`
     }
+
+    case "typeParameter": {
+      return node.name
+  }
   }
 }
 
@@ -117,9 +151,11 @@ const result = generateDeclaration(expected.complex)
   }
 } */
 
-await generateFile([
+await generateFile(/* [
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/errors.ts",
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/results.ts",
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/model.ts",
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts",
-  ])
+  ] */
+  files
+)

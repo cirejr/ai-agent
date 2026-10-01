@@ -236,7 +236,9 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker): IR 
         {
           name: param.name.text,
           constraint: param.constraint && convertType(param.constraint, checker),
-          default: param.default && convertType(param.default, checker)
+          constraintText: param.constraint && param.constraint.getText(),
+          default: param.default && convertType(param.default, checker),
+          defaultText: param.default && param.default.getText(),
         }
       )),
       type: {
@@ -259,7 +261,9 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker): IR 
         {
           name: param.name.text,
           constraint: param.constraint && convertType(param.constraint, checker),
-          default: param.default && convertType(param.default, checker)
+          constraintText: param.constraint && param.constraint.getText(),
+          default: param.default && convertType(param.default, checker),
+          defaultText: param.default && param.default.getText(),
         }
       )),
       type,
