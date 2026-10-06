@@ -1,14 +1,14 @@
-/* export type Result<T extends {name:string}, E= Error> = { ok: true, value: T } | { ok: false, error: E }
-type User = string
+declare const __brand: unique symbol
+/*
+export type Model = {
+  id: ModelID,
+  provider: ProviderID
+} */
 
-type AppError = {
-  _tag: "hello"
-}
-
-type UserResult = Result<User, AppError>
+type Brand<T, B extends T> = T & { [__brand]: B }
+type User = { name: string }
+type Branded<K, T> = { readonly __brand: T } & User;
+/*
+export type ModelID = Brand<string, "ModelID">
+export type ProviderID = Brand<string, "ProviderID">
  */
-// Constraint + Default on the same parameter
-type EventResult<T extends `event_${string}`, E = Error> = { ok: true, value: T } | { ok: false, error: E };
-
-// Using one parameter to constrain another (Dependent Constraints)
-type Store<T, K extends keyof T> = { item: T; key: K };

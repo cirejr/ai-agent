@@ -250,6 +250,8 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker): IR 
   }
 
   if (ts.isTypeAliasDeclaration(node)) {
+    const brand = isBrandDeclaration(node, checker)
+
     const type = ts.isTypeLiteralNode(node.type) ? {
       kind: "object" as const,
       properties: convertProperties(node.type.members, checker)
@@ -291,4 +293,67 @@ export function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker
 
   }
     return type
+}
+
+export function isBrandDeclaration(declaration: ts.TypeAliasDeclaration, checker: ts.TypeChecker) {
+  const type = declaration.type
+  let result = {
+    isBrand: false,
+    brandMarker: {
+      isComputed: false,
+      name: "",
+      type: {
+        name: "",
+        type: ""
+      }
+    },
+    baseType: {}
+  }
+  if (ts.isIntersectionTypeNode(type) && type.types.length === 2) {
+    for (const member of type.types) {
+      if (ts.isTypeLiteralNode(member)) {
+        const property = member.members[0]
+        const brand = isBrandMarker(property)
+        if (ts.isPropertySignature(property) && brand.isBrand) {
+          result.brandMarker = brand.brandMarker
+          result.isBrand = brand.isBrand
+        } else {
+          result.baseType = convertObject(member, checker)
+        }
+      } else {
+        result.baseType = convertType(member, checker)
+        }
+      }
+  }
+  result.isBrand = result.brandMarker.name !== "" && result.brandMarker.type.name !== "" && result.brandMarker.type.type !== ""
+  console.log("result", result)
+  return result
+}
+
+export function isBrandMarker(property: ts.TypeElement) {
+  const result = {
+    isBrand: false,
+    brandMarker: {
+    isComputed: false,
+      name: "",
+      type: {
+        name: "",
+        type: ""
+      }
+    }
+  }
+  if (ts.isPropertySignature(property)) {
+    if (ts.isComputedPropertyName(property.name)) {
+      result.brandMarker.isComputed = true
+      result.brandMarker.name = property.name?.getText()
+    } else if (ts.isIdentifier(property.name) && property.name.getText() === '__brand') {
+      result.brandMarker.name = property.name.text
+    }
+    result.brandMarker.type = {
+      name: property.type?.getText() ?? "",
+      type: property.type ? ts.SyntaxKind[property.type?.kind] : ""
+    }
+  }
+  result.isBrand = result.brandMarker.name !== "" && result.brandMarker.type.name !== "" && result.brandMarker.type.type !== ""
+  return result
 }

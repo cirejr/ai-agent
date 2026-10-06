@@ -42,26 +42,6 @@ export function generateDeclaration(ir: IR[]) {
   ))
 }
 
-/* export function typeOfNode(node: IRNode) {
-  switch (node.kind) {
-    case "any": {
-      return "any"
-    }
-    case "unknown": return "unknown"
-    case "array" : {
-      return typeOfNode(node.items)
-    }
-    case "builtin": {
-      if (node.typeArguments) {
-        return node.typeArguments.map( t => typeOfNode(t))
-      }
-      return node.name
-    }
-    case "primitive": return node.type
-    case "object" : return node.
-  }
-} */
-
 export function toSchema(node: IRNode): string {
   switch (node.kind) {
     case "primitive": {
