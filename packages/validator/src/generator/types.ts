@@ -10,6 +10,12 @@ export interface FileImport {
   ir: IR[]
 }
 
+export interface BrandNode {
+  kind: "brand",
+  baseType: IRNode,
+  brand: IRNode
+}
+
 export type Primitives = "string" | "number" | "boolean" | "null"
 
 export interface IR {
@@ -128,3 +134,4 @@ export type IRNode =
   | BuiltInNode
   | MapNode
   | TypeParameterNode
+  | BrandNode

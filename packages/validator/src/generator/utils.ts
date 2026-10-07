@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import type { ArrayNode, EnumNode, IntersectionNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, IR, IRNode, TupleNode, UnionNode, RecordNode, BuiltInNode, MapNode } from "./types";
+import type { ArrayNode, EnumNode, IntersectionNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, IR, IRNode, TupleNode, UnionNode, RecordNode, BuiltInNode, MapNode, BrandNode } from "./types";
 
 
 export function convertEnum(members: ts.NodeArray<ts.EnumMember>, checker: ts.TypeChecker) {
@@ -268,7 +268,11 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker): IR 
           defaultText: param.default && param.default.getText(),
         }
       )),
-      type,
+      type: brand.isBrand ? {
+        kind: "brand",
+        baseType: brand.baseType,
+        brand: brand.brandMarker
+      } satisfies BrandNode : type
     }
     return schema
   }
@@ -299,24 +303,17 @@ export function isBrandDeclaration(declaration: ts.TypeAliasDeclaration, checker
   const type = declaration.type
   let result = {
     isBrand: false,
-    brandMarker: {
-      isComputed: false,
-      name: "",
-      type: {
-        name: "",
-        type: ""
-      }
-    },
-    baseType: {}
+    brandMarker: {} as IRNode,
+    baseType: {} as IRNode
   }
   if (ts.isIntersectionTypeNode(type) && type.types.length === 2) {
     for (const member of type.types) {
       if (ts.isTypeLiteralNode(member)) {
         const property = member.members[0]
-        const brand = isBrandMarker(property)
+        const brand = isBrandMarker(property, checker)
         if (ts.isPropertySignature(property) && brand.isBrand) {
-          result.brandMarker = brand.brandMarker
-          result.isBrand = brand.isBrand
+          result.brandMarker = brand.brandMarker.type
+          result.isBrand = true
         } else {
           result.baseType = convertObject(member, checker)
         }
@@ -325,35 +322,45 @@ export function isBrandDeclaration(declaration: ts.TypeAliasDeclaration, checker
         }
       }
   }
-  result.isBrand = result.brandMarker.name !== "" && result.brandMarker.type.name !== "" && result.brandMarker.type.type !== ""
   console.log("result", result)
   return result
 }
 
-export function isBrandMarker(property: ts.TypeElement) {
+export function isBrandMarker(property: ts.TypeElement, checker: ts.TypeChecker) {
   const result = {
     isBrand: false,
     brandMarker: {
     isComputed: false,
       name: "",
-      type: {
-        name: "",
-        type: ""
-      }
+      type: {} as IRNode
     }
   }
   if (ts.isPropertySignature(property)) {
     if (ts.isComputedPropertyName(property.name)) {
-      result.brandMarker.isComputed = true
-      result.brandMarker.name = property.name?.getText()
+      const expression = property.name.expression
+
+      if (ts.isIdentifier(expression)) {
+        const symbol = checker.getSymbolAtLocation(expression)
+
+        if (symbol) {
+          const type = checker.getTypeOfSymbolAtLocation(symbol, expression)
+
+          const isUniqueSymbol = (type.flags & ts.TypeFlags.UniqueESSymbol) !== 0
+
+          if (isUniqueSymbol) {
+            result.brandMarker.isComputed = true
+            result.brandMarker.name = property.name.getText()
+          }
+        }
+      }
     } else if (ts.isIdentifier(property.name) && property.name.getText() === '__brand') {
       result.brandMarker.name = property.name.text
     }
-    result.brandMarker.type = {
-      name: property.type?.getText() ?? "",
-      type: property.type ? ts.SyntaxKind[property.type?.kind] : ""
+    if (property.type) {
+      const node = convertType(property.type, checker)
+      result.brandMarker.type = node
     }
   }
-  result.isBrand = result.brandMarker.name !== "" && result.brandMarker.type.name !== "" && result.brandMarker.type.type !== ""
+  result.isBrand = result.brandMarker.name !== "" && result.brandMarker.type.kind !== undefined
   return result
 }
