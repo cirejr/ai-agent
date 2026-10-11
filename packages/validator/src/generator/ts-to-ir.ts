@@ -42,7 +42,6 @@ function visit(node: ts.Node, checker: ts.TypeChecker, ir: IR[]) {
     ts.forEachChild(node, child => visit(child, checker, ir))
      return;
   }
-
   const result = convertDeclarations(node, checker)
 
   if (result) ir.push(result)

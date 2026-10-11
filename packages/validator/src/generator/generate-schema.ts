@@ -1,9 +1,7 @@
-import { Schema } from "../core";
-import { yus } from "../yusra";
 import { files } from "./files";
 import { expected } from "./tests/expected";
 import { typescriptToIR } from "./ts-to-ir";
-import type { IR, IRNode } from "./types";
+import type { IR, IRNode, LiteralNode } from "./types";
 import prettier from "prettier"
 
 export async function generateFile(files: string[], options = {}) {
@@ -38,7 +36,7 @@ export function generateDeclaration(ir: IR[]) {
       `export const ${item.name.replace("IR", "Schema")} = ${item.typeParameters !== undefined ? `<${item.typeParameters?.map(t => `${t.name }${t.constraintText ? ` extends ${t.constraintText}` : ""} ${t.defaultText ? `=${t.defaultText}` : ""}`).join(",")}> (
       ${item.typeParameters.map(t => `${t.name}: Schema<${t.name}>`).join(", \n")}
       ) ` : ""} => ${toSchema(item.type)}` :
-      `export const ${item.name.replace("IR", "Schema")} = ${ toSchema(item.type)}`
+      `export const ${item.type.kind == "reference" && item.type.brand ? item.name.replace(/IR$/, "") : item.name.replace(/IR$/, "Schema")} = ${toSchema(item.type)}`
   ))
 }
 
@@ -75,7 +73,19 @@ export function toSchema(node: IRNode): string {
     }
 
     case "reference": {
-      return node.typeArguments ? `${node.name.replace("IR", "Schema")}(${node.typeArguments.map(t => t?.name.replace("IR", "Schema"))})` : node.name.replace("IR", "Schema")
+      if (node.brand) {
+        return `${toSchema(node.brand.baseType)}.brand<"${(node.brand.marker as LiteralNode).value}">()`
+      }
+
+      if (node.isBranded) {
+        return node.name.replace(/IR$/, "")
+      }
+
+      if (node.typeArguments) {
+        return `${node.name.replace(/IR$/, "Schema")}(${node.typeArguments.map(t => toSchema(t)).join(", ")})`
+      }
+
+      return node.name.replace(/IR$/, "Schema")
     }
 
     case "intersection": {
@@ -89,7 +99,7 @@ export function toSchema(node: IRNode): string {
 
     case "typeParameter": {
       return node.name
-  }
+    }
   }
 }
 
@@ -131,11 +141,11 @@ const result = generateDeclaration(expected.complex)
   }
 } */
 
-await generateFile(/* [
+await generateFile([
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/errors.ts",
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/results.ts",
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/model.ts",
   "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts",
-  ] */
-  files
+  ]
+  //files
 )
