@@ -100,6 +100,26 @@ export function toSchema(node: IRNode): string {
     case "typeParameter": {
       return node.name
     }
+
+    case "any": {
+      return `yus.any()`
+    }
+
+    case "unknown": {
+      return `yus.unknown()`
+    }
+
+    case "record": {
+      return `yus.record(${toSchema(node.key)}, ${toSchema(node.value)})`
+    }
+
+    case "map": {
+      return `yus.map(${toSchema(node.key)}, ${toSchema(node.value)})`
+    }
+
+    case "builtin": {
+      return `yus.instanceOf(${node.name})`
+    }
   }
 }
 
