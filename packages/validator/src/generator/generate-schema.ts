@@ -118,7 +118,10 @@ export function toSchema(node: IRNode): string {
     }
 
     case "builtin": {
-      return `yus.instanceOf(${node.name})`
+      const args = node.typeArguments?.map(toSchema).join(", ")
+      return args
+        ? `yus.instanceOf<${args}>(${node.name})`
+        : `yus.instanceOf(${node.name})`
     }
   }
 }

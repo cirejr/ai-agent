@@ -1,0 +1,15 @@
+export const builtins = new Set([
+  "Uint8Array",
+  "Int8Array",
+  "Uint16Array",
+  "Int16Array",
+  "Uint32Array",
+  "Int32Array",
+  "Float32Array",
+  "Float64Array",
+  "DataView",
+  "Date",
+  "RegExp",
+  "URL",
+  "Error",
+]);

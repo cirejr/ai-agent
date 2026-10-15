@@ -17,7 +17,7 @@ export const MediaPartSchema = yus.object({
   id: yus.string(),
   name: yus.string(),
   mimeType: yus.string(),
-  data: yus.union([yus.string()]),
+  data: yus.union([yus.string(), yus.instanceOf(Uint8Array)]),
 });
 export const UserPartSchema = yus.union([TextPartSchema, MediaPartSchema]);
 export const UserMessageSchema = yus.object({
@@ -35,7 +35,7 @@ export const ToolCallPartSchema = yus.object({
   type: yus.literal("tool-call"),
   toolCallId: yus.string(),
   name: yus.string(),
-  arguments: undefined,
+  arguments: yus.record(yus.string(), yus.unknown()),
 });
 export const ReasoningPartSchema = yus.object({
   type: yus.literal("reasoning"),
@@ -60,10 +60,10 @@ export const AssistantMessageSchema = yus.object({
   content: yus.array(AssistantPartSchema),
 });
 export const ToolResultValueSchema = yus.union([
-  yus.object({ type: yus.literal("json"), value: undefined }),
-  yus.object({ type: yus.literal("text"), value: undefined }),
-  yus.object({ type: yus.literal("error"), value: undefined }),
-  yus.object({ type: yus.literal("content"), value: yus.array(undefined) }),
+  yus.object({ type: yus.literal("json"), value: yus.unknown() }),
+  yus.object({ type: yus.literal("text"), value: yus.unknown() }),
+  yus.object({ type: yus.literal("error"), value: yus.unknown() }),
+  yus.object({ type: yus.literal("content"), value: yus.array(yus.unknown()) }),
 ]);
 export const ToolResultPartSchema = yus.object({
   id: yus.string().optional(),
@@ -115,10 +115,10 @@ export const JsonSchemaSchema = yus.object({
       yus.literal("null"),
     ])
     .optional(),
-  properties: undefined,
+  properties: yus.record(yus.string(), JsonSchemaSchema),
   required: yus.array(yus.string()).optional(),
   items: JsonSchemaSchema.optional(),
-  enum: yus.array(undefined).optional(),
+  enum: yus.array(yus.unknown()).optional(),
   description: yus.string().optional(),
 });
 export const ToolSchema = yus.object({

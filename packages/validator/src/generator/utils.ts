@@ -1,5 +1,6 @@
 import * as ts from "typescript";
 import type { ArrayNode, EnumNode, IntersectionNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, IR, IRNode, TupleNode, UnionNode, RecordNode, BuiltInNode, MapNode, BrandNode } from "./types";
+import { builtins } from "./constants";
 
 export function convertEnum(members: ts.NodeArray<ts.EnumMember>, checker: ts.TypeChecker) {
   let types = []
@@ -160,22 +161,21 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
           }
         }
 
-        const sourceFile = declaration.getSourceFile()
-        if (sourceFile.isDeclarationFile) {
+        if (builtins.has(typeNode.typeName.text)) {
           if (typeNode.typeArguments) {
-            const types = typeNode.typeArguments.map(t => convertType(t, checker))
+              const types = typeNode.typeArguments.map(t => convertType(t, checker))
+              return {
+                kind: "builtin",
+                name: typeNode.typeName.text,
+                typeArguments: types
+              } satisfies BuiltInNode
+
+            }
             return {
               kind: "builtin",
-              name: typeNode.typeName.text,
-              typeArguments: types
+              name: typeNode.typeName.text
             } satisfies BuiltInNode
-
           }
-          return {
-            kind: "builtin",
-            name: typeNode.typeName.text
-          } satisfies BuiltInNode
-        }
       }
     }
 
