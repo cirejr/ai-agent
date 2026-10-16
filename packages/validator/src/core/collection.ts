@@ -1,8 +1,10 @@
-import { Schema } from "./schema"
-import type { TypeOf } from "./types"
+import { Schema } from './schema'
+import type { TypeOf } from './types'
 
-export class ArraySchema<TItemSchema extends Schema<any>> extends Schema<TypeOf<TItemSchema>[]> {
-  type= "array" as const
+export class ArraySchema<TItemSchema extends Schema<any>> extends Schema<
+  TypeOf<TItemSchema>[]
+> {
+  type = 'array' as const
   constructor(public items: TItemSchema) {
     super()
   }

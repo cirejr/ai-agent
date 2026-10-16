@@ -1,6 +1,5 @@
-
 export function isRecord(v: unknown): v is Record<string, unknown> {
-  if (v == null || typeof v !== "object") {
+  if (v == null || typeof v !== 'object') {
     return false
   }
 
@@ -15,9 +14,9 @@ export function isOneOf(v: unknown, array: readonly unknown[]) {
 
 export function actualTypeOf(v: unknown) {
   const type = typeof v
-  if (type === "object") {
-    if (Array.isArray(v)) return "array"
-    if (v == null) return "null"
+  if (type === 'object') {
+    if (Array.isArray(v)) return 'array'
+    if (v == null) return 'null'
   }
 
   return type

@@ -1,8 +1,27 @@
-import * as ts from "typescript";
-import type { ArrayNode, EnumNode, IntersectionNode, ObjectNode, OptionalNode, PrimitiveNode, ReferenceNode, IR, IRNode, TupleNode, UnionNode, RecordNode, BuiltInNode, MapNode, BrandNode } from "./types";
-import { builtins } from "./constants";
+import * as ts from 'typescript'
+import type {
+  ArrayNode,
+  EnumNode,
+  IntersectionNode,
+  ObjectNode,
+  OptionalNode,
+  PrimitiveNode,
+  ReferenceNode,
+  IR,
+  IRNode,
+  TupleNode,
+  UnionNode,
+  RecordNode,
+  BuiltInNode,
+  MapNode,
+  BrandNode,
+} from './types'
+import { builtins } from './constants'
 
-export function convertEnum(members: ts.NodeArray<ts.EnumMember>, checker: ts.TypeChecker) {
+export function convertEnum(
+  members: ts.NodeArray<ts.EnumMember>,
+  checker: ts.TypeChecker
+) {
   let types = []
   for (const member of members) {
     const value = checker.getConstantValue(member)
@@ -11,39 +30,45 @@ export function convertEnum(members: ts.NodeArray<ts.EnumMember>, checker: ts.Ty
     }
     types.push({
       name: member.name.getText(),
-      value
+      value,
     })
   }
 
   return {
-    kind: "enum",
-    members: types
+    kind: 'enum',
+    members: types,
   } satisfies EnumNode
 }
 
-export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRNode {
+export function convertType(
+  typeNode: ts.TypeNode,
+  checker: ts.TypeChecker
+): IRNode {
   const type = checker.getTypeAtLocation(typeNode)
 
   if (typeNode.kind == ts.SyntaxKind.AnyKeyword) {
     return {
-      kind : "any"
+      kind: 'any',
     }
   }
 
-  if (typeNode.kind == ts.SyntaxKind.UnknownKeyword || type.flags & ts.TypeFlags.Unknown) {
+  if (
+    typeNode.kind == ts.SyntaxKind.UnknownKeyword ||
+    type.flags & ts.TypeFlags.Unknown
+  ) {
     return {
-      kind : "unknown"
+      kind: 'unknown',
     }
   }
 
   if (ts.isIntersectionTypeNode(typeNode)) {
-    let types= []
+    let types = []
     for (const type of typeNode.types) {
       types.push(convertType(type, checker))
     }
     return {
-      kind: "intersection",
-      types
+      kind: 'intersection',
+      types,
     } satisfies IntersectionNode
   }
 
@@ -53,8 +78,8 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
       elements.push(convertType(el, checker))
     }
     return {
-      kind: "tuple",
-      elements
+      kind: 'tuple',
+      elements,
     } satisfies TupleNode
   }
 
@@ -65,8 +90,8 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
   if (ts.isArrayTypeNode(typeNode)) {
     const items = convertType(typeNode?.elementType, checker)
     return {
-      kind: "array",
-      items
+      kind: 'array',
+      items,
     } satisfies ArrayNode
   }
 
@@ -75,36 +100,36 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
 
     if (literal.kind === ts.SyntaxKind.TrueKeyword) {
       return {
-        kind: "literal",
-        value: true
+        kind: 'literal',
+        value: true,
       }
     }
 
     if (literal.kind === ts.SyntaxKind.FalseKeyword) {
       return {
-        kind: "literal",
-        value: false
+        kind: 'literal',
+        value: false,
       }
     }
 
     if (ts.isNumericLiteral(literal)) {
       return {
-        kind: "literal",
-        value: Number(literal.text)
+        kind: 'literal',
+        value: Number(literal.text),
       }
     }
 
     if (literal.kind === ts.SyntaxKind.NullKeyword) {
       return {
-        kind: "literal",
-        value: null
+        kind: 'literal',
+        value: null,
       }
     }
 
-    if(ts.isStringLiteral(literal)){
+    if (ts.isStringLiteral(literal)) {
       return {
-        kind: "literal",
-        value: literal.text
+        kind: 'literal',
+        value: literal.text,
       }
     }
 
@@ -118,29 +143,29 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
       types.push(schemaNode)
     }
     return {
-      kind: "union",
-      types
+      kind: 'union',
+      types,
     } satisfies UnionNode
   }
 
   if (ts.isTypeReferenceNode(typeNode)) {
     if (type.isTypeParameter()) {
       return {
-        kind: "typeParameter",
-        name: typeNode.typeName.getText()
+        kind: 'typeParameter',
+        name: typeNode.typeName.getText(),
       }
     }
 
     if (ts.isIdentifier(typeNode.typeName)) {
       const nodeName = typeNode.typeName.getText()
 
-      if ( nodeName === "Record" || nodeName === "Map") {
+      if (nodeName === 'Record' || nodeName === 'Map') {
         const [key, value] = typeNode.typeArguments ?? []
 
         return {
-          kind: nodeName === "Record" ? "record" : "map",
+          kind: nodeName === 'Record' ? 'record' : 'map',
           key: convertType(key, checker),
-          value: convertType(value, checker)
+          value: convertType(value, checker),
         } satisfies RecordNode | MapNode
       }
 
@@ -151,49 +176,54 @@ export function convertType(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRN
           const [baseType, marker] = typeNode.typeArguments ?? []
           if (isBrand) {
             return {
-              kind: "reference",
+              kind: 'reference',
               name: typeNode.typeName.getText(),
               brand: {
                 baseType: convertType(baseType, checker),
-                marker: convertType(marker, checker)
-              }
+                marker: convertType(marker, checker),
+              },
             } satisfies ReferenceNode
           }
         }
 
         if (builtins.has(typeNode.typeName.text)) {
           if (typeNode.typeArguments) {
-              const types = typeNode.typeArguments.map(t => convertType(t, checker))
-              return {
-                kind: "builtin",
-                name: typeNode.typeName.text,
-                typeArguments: types
-              } satisfies BuiltInNode
-
-            }
+            const types = typeNode.typeArguments.map((t) =>
+              convertType(t, checker)
+            )
             return {
-              kind: "builtin",
-              name: typeNode.typeName.text
+              kind: 'builtin',
+              name: typeNode.typeName.text,
+              typeArguments: types,
             } satisfies BuiltInNode
           }
+          return {
+            kind: 'builtin',
+            name: typeNode.typeName.text,
+          } satisfies BuiltInNode
+        }
       }
     }
 
     const propertyName = typeNode.typeName.getText()
     return {
-      kind: "reference",
+      kind: 'reference',
       name: toIRName(propertyName),
       isBranded: isRefBrand(typeNode, checker),
-      typeArguments: typeNode.typeArguments?.map(arg =>
+      typeArguments: typeNode.typeArguments?.map((arg) =>
         convertType(arg, checker)
-      )
+      ),
     } satisfies ReferenceNode
   }
 
   return toPrimitiveNode(typeNode, checker)
 }
 
-export function isRefBrand(node: ts.TypeReferenceNode, checker: ts.TypeChecker, visited = new Set<ts.Declaration>()): boolean {
+export function isRefBrand(
+  node: ts.TypeReferenceNode,
+  checker: ts.TypeChecker,
+  visited = new Set<ts.Declaration>()
+): boolean {
   const symbol = checker.getSymbolAtLocation(node.typeName)
   for (const declaration of symbol?.declarations ?? []) {
     if (!ts.isTypeAliasDeclaration(declaration)) continue
@@ -203,8 +233,11 @@ export function isRefBrand(node: ts.TypeReferenceNode, checker: ts.TypeChecker, 
 
     if (isBrandDeclaration(declaration, checker).isBrand) return true
 
-    if (ts.isTypeReferenceNode(declaration.type) && isRefBrand(declaration.type, checker, visited)) return true
-
+    if (
+      ts.isTypeReferenceNode(declaration.type) &&
+      isRefBrand(declaration.type, checker, visited)
+    )
+      return true
   }
 
   return false
@@ -215,69 +248,86 @@ export function convertObject(
   checker: ts.TypeChecker
 ): ObjectNode {
   return {
-    kind: "object",
-    properties: convertProperties(node.members, checker)
+    kind: 'object',
+    properties: convertProperties(node.members, checker),
   }
 }
 
 function toIRName(typeName: string): string {
-  if (typeName.includes("type")) {
-    return typeName.replace("type", "IR")
+  if (typeName.includes('type')) {
+    return typeName.replace('type', 'IR')
   }
-  if (typeName.includes("Type")) return typeName.replace("Type", "IR")
+  if (typeName.includes('Type')) return typeName.replace('Type', 'IR')
 
-  return typeName.concat("IR")
+  return typeName.concat('IR')
 }
 
-export function toPrimitiveNode(typeNode: ts.TypeNode, checker: ts.TypeChecker): IRNode {
+export function toPrimitiveNode(
+  typeNode: ts.TypeNode,
+  checker: ts.TypeChecker
+): IRNode {
   const type = checker.getTypeAtLocation(typeNode)
-  if(typeNode.kind === ts.SyntaxKind.StringKeyword || type.flags & ts.TypeFlags.String) {
-      return { kind: "primitive" as const, type: "string"} satisfies PrimitiveNode
-  }
-
-  if (typeNode.kind === ts.SyntaxKind.NumberKeyword || (type.flags & ts.TypeFlags.Number)) {
-      return {type: "number", kind: "primitive" } satisfies PrimitiveNode
-  }
-
-  if (typeNode.kind === ts.SyntaxKind.BooleanKeyword || (type.flags & ts.TypeFlags.Boolean)) {
-    return { type: "boolean", kind: "primitive" }
-
-  }
-
-  if (typeNode.kind === ts.SyntaxKind.NullKeyword || (type.flags & ts.TypeFlags.Null)) {
+  if (
+    typeNode.kind === ts.SyntaxKind.StringKeyword ||
+    type.flags & ts.TypeFlags.String
+  ) {
     return {
-      kind: "primitive",
-      type: "null",
+      kind: 'primitive' as const,
+      type: 'string',
+    } satisfies PrimitiveNode
+  }
+
+  if (
+    typeNode.kind === ts.SyntaxKind.NumberKeyword ||
+    type.flags & ts.TypeFlags.Number
+  ) {
+    return { type: 'number', kind: 'primitive' } satisfies PrimitiveNode
+  }
+
+  if (
+    typeNode.kind === ts.SyntaxKind.BooleanKeyword ||
+    type.flags & ts.TypeFlags.Boolean
+  ) {
+    return { type: 'boolean', kind: 'primitive' }
+  }
+
+  if (
+    typeNode.kind === ts.SyntaxKind.NullKeyword ||
+    type.flags & ts.TypeFlags.Null
+  ) {
+    return {
+      kind: 'primitive',
+      type: 'null',
     }
   }
 
   console.error(`Unsupported type: ${ts.SyntaxKind[typeNode.kind]} `)
 }
 
-export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker): IR | undefined {
+export function convertDeclarations(
+  node: ts.Node,
+  checker: ts.TypeChecker
+): IR | undefined {
   if (ts.isEnumDeclaration(node)) {
     const schema = {
       name: toIRName(node.name.text),
-      type: convertEnum(node.members, checker)
+      type: convertEnum(node.members, checker),
     }
     return schema
   }
 
   if (ts.isInterfaceDeclaration(node)) {
-
     const schema = {
       name: toIRName(node.name.text),
-      typeParameters: node.typeParameters?.map(param => (
-        {
-          name: param.name.text,
-          constraint: param.constraint && convertType(param.constraint, checker),
-          constraintText: param.constraint && param.constraint.getText(),
-          default: param.default && convertType(param.default, checker),
-          defaultText: param.default && param.default.getText(),
-        }
-      )),
+      typeParameters: node.typeParameters?.map((param) => ({
+        name: param.name.text,
+        constraint: param.constraint && convertType(param.constraint, checker),
+        constraintText: param.constraint && param.constraint.getText(),
+        default: param.default && convertType(param.default, checker),
+        defaultText: param.default && param.default.getText(),
+      })),
       type: {
-        kind: "object",
+        kind: 'object',
         properties: convertProperties(node.members, checker),
       } satisfies IRNode,
     }
@@ -289,23 +339,23 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker): IR 
     if (brand.isBrand) {
       return
     }
-    const type = ts.isTypeLiteralNode(node.type) ? {
-      kind: "object" as const,
-      properties: convertProperties(node.type.members, checker)
-    } : convertType(node.type, checker)
+    const type = ts.isTypeLiteralNode(node.type)
+      ? {
+          kind: 'object' as const,
+          properties: convertProperties(node.type.members, checker),
+        }
+      : convertType(node.type, checker)
 
     const schema = {
-      name : toIRName(node.name.text),
-      typeParameters: node.typeParameters?.map(param => (
-        {
-          name: param.name.text,
-          constraint: param.constraint && convertType(param.constraint, checker),
-          constraintText: param.constraint && param.constraint.getText(),
-          default: param.default && convertType(param.default, checker),
-          defaultText: param.default && param.default.getText(),
-        }
-      )),
-      type
+      name: toIRName(node.name.text),
+      typeParameters: node.typeParameters?.map((param) => ({
+        name: param.name.text,
+        constraint: param.constraint && convertType(param.constraint, checker),
+        constraintText: param.constraint && param.constraint.getText(),
+        default: param.default && convertType(param.default, checker),
+        defaultText: param.default && param.default.getText(),
+      })),
+      type,
     }
     return schema
   }
@@ -313,7 +363,10 @@ export function convertDeclarations(node: ts.Node, checker: ts.TypeChecker): IR 
   return undefined
 }
 
-export function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker: ts.TypeChecker) {
+export function convertProperties(
+  members: ts.NodeArray<ts.TypeElement>,
+  checker: ts.TypeChecker
+) {
   let type: Record<string, IRNode> = {}
   for (const member of members) {
     if (!ts.isPropertySignature(member) || !member.type) {
@@ -323,21 +376,25 @@ export function convertProperties(members: ts.NodeArray<ts.TypeElement>, checker
     const propertyName = member.name.getText()
     const propertyType = convertType(member.type, checker)
 
-    type[propertyName] = member.questionToken ? {
-      kind: "optional",
-      type: convertType(member.type, checker)
-    } satisfies OptionalNode : propertyType
-
+    type[propertyName] = member.questionToken
+      ? ({
+          kind: 'optional',
+          type: convertType(member.type, checker),
+        } satisfies OptionalNode)
+      : propertyType
   }
-    return type
+  return type
 }
 
-export function isBrandDeclaration(declaration: ts.TypeAliasDeclaration, checker: ts.TypeChecker) {
+export function isBrandDeclaration(
+  declaration: ts.TypeAliasDeclaration,
+  checker: ts.TypeChecker
+) {
   const type = declaration.type
   let result = {
     isBrand: false,
     brandMarker: {} as IRNode,
-    baseType: {} as IRNode
+    baseType: {} as IRNode,
   }
   if (ts.isIntersectionTypeNode(type) && type.types.length === 2) {
     for (const member of type.types) {
@@ -352,20 +409,23 @@ export function isBrandDeclaration(declaration: ts.TypeAliasDeclaration, checker
         }
       } else {
         result.baseType = convertType(member, checker)
-        }
       }
+    }
   }
   return result
 }
 
-export function isBrandMarker(property: ts.TypeElement, checker: ts.TypeChecker) {
+export function isBrandMarker(
+  property: ts.TypeElement,
+  checker: ts.TypeChecker
+) {
   const result = {
     isBrand: false,
     brandMarker: {
-    isComputed: false,
-      name: "",
-      type: {} as IRNode
-    }
+      isComputed: false,
+      name: '',
+      type: {} as IRNode,
+    },
   }
   if (ts.isPropertySignature(property)) {
     if (ts.isComputedPropertyName(property.name)) {
@@ -377,7 +437,8 @@ export function isBrandMarker(property: ts.TypeElement, checker: ts.TypeChecker)
         if (symbol) {
           const type = checker.getTypeOfSymbolAtLocation(symbol, expression)
 
-          const isUniqueSymbol = (type.flags & ts.TypeFlags.UniqueESSymbol) !== 0
+          const isUniqueSymbol =
+            (type.flags & ts.TypeFlags.UniqueESSymbol) !== 0
 
           if (isUniqueSymbol) {
             result.brandMarker.isComputed = true
@@ -385,7 +446,10 @@ export function isBrandMarker(property: ts.TypeElement, checker: ts.TypeChecker)
           }
         }
       }
-    } else if (ts.isIdentifier(property.name) && property.name.getText() === '__brand') {
+    } else if (
+      ts.isIdentifier(property.name) &&
+      property.name.getText() === '__brand'
+    ) {
       result.brandMarker.name = property.name.text
     }
     if (property.type) {
@@ -393,6 +457,7 @@ export function isBrandMarker(property: ts.TypeElement, checker: ts.TypeChecker)
       result.brandMarker.type = node
     }
   }
-  result.isBrand = result.brandMarker.name !== "" && result.brandMarker.type.kind !== undefined
+  result.isBrand =
+    result.brandMarker.name !== '' && result.brandMarker.type.kind !== undefined
   return result
 }

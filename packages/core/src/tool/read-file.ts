@@ -1,18 +1,18 @@
-import { addLineNumber } from "@/lib/utilities/add-line-number";
+import { addLineNumber } from '@/lib/utilities/add-line-number'
 
 export async function readFile(filePath: string) {
   try {
-    const file = await Bun.file(filePath);
+    const file = await Bun.file(filePath)
     const fileWithLines = addLineNumber(await file.text())
     return {
       success: true,
       file: filePath,
-      content: fileWithLines
-    };
+      content: fileWithLines,
+    }
   } catch (e) {
     return {
       success: false,
-      errorMessage: e instanceof Error ? e.message : "Couldn't read the file"
+      errorMessage: e instanceof Error ? e.message : "Couldn't read the file",
     }
   }
 }

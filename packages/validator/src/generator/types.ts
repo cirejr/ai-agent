@@ -1,119 +1,119 @@
 export interface ImportMetadata {
-  importedName: string,
-  localName: string,
-  from : string
+  importedName: string
+  localName: string
+  from: string
 }
 
 export interface FileImport {
-  file: string,
-  imports: ImportMetadata[],
+  file: string
+  imports: ImportMetadata[]
   ir: IR[]
 }
 
-export type Primitives = "string" | "number" | "boolean" | "null"
+export type Primitives = 'string' | 'number' | 'boolean' | 'null'
 
 export interface IR {
-  name: string,
-  type: IRNode,
+  name: string
+  type: IRNode
   typeParameters?: TypeParameter[]
 }
 
 export interface TypeParameter {
-  name: string,
-  constraint?: IRNode,
+  name: string
+  constraint?: IRNode
   constraintText?: string
-  default?: IRNode,
+  default?: IRNode
   defaultText?: string
 }
 
 export interface TypeParameterNode {
-  kind: "typeParameter",
+  kind: 'typeParameter'
   name: string
 }
 
 export interface PrimitiveNode {
-  kind: "primitive",
+  kind: 'primitive'
   type: Primitives
 }
 
 export interface ArrayNode {
-  kind: "array",
-  items:  IRNode
+  kind: 'array'
+  items: IRNode
 }
 
 export interface LiteralNode {
-  kind: "literal",
+  kind: 'literal'
   value: string | number | null | boolean
 }
 
 export interface UnionNode {
-  kind: "union",
+  kind: 'union'
   types: IRNode[]
 }
 
 export interface ObjectNode {
-  kind: "object",
+  kind: 'object'
   properties: Record<string, IRNode>
 }
 
 export interface TupleNode {
-  kind: "tuple",
+  kind: 'tuple'
   elements: IRNode[]
 }
 
 export interface IntersectionNode {
-  kind: "intersection",
+  kind: 'intersection'
   types: IRNode[]
 }
 
 export interface OptionalNode {
-  kind: "optional",
+  kind: 'optional'
   type: IRNode
 }
 
 export interface UnknownNode {
-  kind: "unknown",
+  kind: 'unknown'
 }
 
 export interface AnyNode {
-  kind: "any",
+  kind: 'any'
 }
 
 export interface RecordNode {
-  kind: "record",
-  key: IRNode,
+  kind: 'record'
+  key: IRNode
   value: IRNode
 }
 
 export interface MapNode {
-  kind: "map",
-  key: IRNode,
+  kind: 'map'
+  key: IRNode
   value: IRNode
 }
 
 export interface EnumNode {
-  kind: "enum",
+  kind: 'enum'
   members: {
-    name: string,
+    name: string
     value: string | number
   }[]
 }
 
 export interface ReferenceNode {
-  kind: "reference",
-  name: string,
-  isBranded?: boolean,
-  typeArguments?: IRNode[],
+  kind: 'reference'
+  name: string
+  isBranded?: boolean
+  typeArguments?: IRNode[]
   brand?: {
-    baseType: IRNode,
+    baseType: IRNode
     marker: IRNode
   }
 }
 
-export interface BuiltInNode{
-  kind: "builtin",
-  name: string,
-  typeArguments? : IRNode[]
+export interface BuiltInNode {
+  kind: 'builtin'
+  name: string
+  typeArguments?: IRNode[]
 }
 
 export type IRNode =

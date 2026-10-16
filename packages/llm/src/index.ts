@@ -1,1 +1,1 @@
-export * as OpenAIResponses from "./protocols/openai-responses";
+export * as OpenAIResponses from './protocols/openai-responses'

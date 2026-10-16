@@ -5,9 +5,9 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-      ".": "./src/index.ts",
-      "./*": "./src/*"
-    },
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
   "dependencies": {
     "@erwin-ai/schema": "workspace:*",
     "@erwin-ai/validator": "workspace:*"

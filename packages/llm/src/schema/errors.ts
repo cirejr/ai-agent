@@ -1,47 +1,55 @@
-
-export type AppError = InvalidMedia | InvalidAudioFormat | InvalidPrompt | RateLimitExceeded | InvalidToolArguments | ProviderServerError | ProviderError | PolicyError | InvalidResponse
+export type AppError =
+  | InvalidMedia
+  | InvalidAudioFormat
+  | InvalidPrompt
+  | RateLimitExceeded
+  | InvalidToolArguments
+  | ProviderServerError
+  | ProviderError
+  | PolicyError
+  | InvalidResponse
 
 export type InvalidMedia = {
-  _tag: "InvalidMedia",
-  message: string,
+  _tag: 'InvalidMedia'
+  message: string
 }
 
 export type InvalidAudioFormat = {
-  _tag: "InvalidAudioFormat",
+  _tag: 'InvalidAudioFormat'
   message: string
 }
 
 export type InvalidPrompt = {
-  _tag: "InvalidPrompt",
-  message: string,
+  _tag: 'InvalidPrompt'
+  message: string
 }
 
 export type RateLimitExceeded = {
-  _tag: "RateLimitExceeded",
+  _tag: 'RateLimitExceeded'
   message: string
 }
 
 export type InvalidToolArguments = {
-  _tag: "InvalidToolArguments",
+  _tag: 'InvalidToolArguments'
   message: string
 }
 
 export type ProviderServerError = {
-  _tag: "ProviderServerError",
+  _tag: 'ProviderServerError'
   message: string
 }
 
 export type ProviderError = {
-  _tag: "ProviderError",
+  _tag: 'ProviderError'
   message: string
 }
 
 export type PolicyError = {
-  _tag: "PolicyError",
+  _tag: 'PolicyError'
   message: string
 }
 
 export type InvalidResponse = {
-  _tag: "InvalidResponse",
+  _tag: 'InvalidResponse'
   message: string
 }

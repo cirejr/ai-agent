@@ -1,9 +1,9 @@
-import { replaceContent } from "@/lib/utilities/replace-content"
+import { replaceContent } from '@/lib/utilities/replace-content'
 
 interface editFileTypes {
-  path: string,
-  startLine: number,
-  endLine: number,
+  path: string
+  startLine: number
+  endLine: number
   content?: string
 }
 
@@ -13,10 +13,15 @@ interface editFileTypes {
 // extract exact piece, change the content, and replace it
 //
 
-export async function editFile({ path, startLine, endLine, content = "" }: editFileTypes) {
+export async function editFile({
+  path,
+  startLine,
+  endLine,
+  content = '',
+}: editFileTypes) {
   try {
     if (!path || !startLine || !endLine) {
-      return { errorMessage: "Missing Mandatory params"}
+      return { errorMessage: 'Missing Mandatory params' }
     }
 
     const rawText = await Bun.file(path).text()
@@ -27,9 +32,11 @@ export async function editFile({ path, startLine, endLine, content = "" }: editF
       success: true,
       path,
       linesDeleted: replacedContent.deleteCount,
-      linesInserted: replacedContent.newContentLines.length
-      }
+      linesInserted: replacedContent.newContentLines.length,
+    }
   } catch (err) {
-    return { errorMessage: err instanceof Error ? err.message : "Error editing file" }
+    return {
+      errorMessage: err instanceof Error ? err.message : 'Error editing file',
+    }
   }
 }

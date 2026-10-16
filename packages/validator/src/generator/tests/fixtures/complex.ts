@@ -6,7 +6,7 @@ export type User = {
     createdAt: string
     updatedAt?: string
   }
-  status: "active" | "disabled"
+  status: 'active' | 'disabled'
 }
 
 export type SearchResult = User | null

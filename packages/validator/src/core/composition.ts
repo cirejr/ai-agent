@@ -1,7 +1,9 @@
-import { Schema } from "./schema"
-import type { SchemaTuple, TypeOf } from "./types"
+import { Schema } from './schema'
+import type { SchemaTuple, TypeOf } from './types'
 
-export class UnionSchema<T extends SchemaTuple> extends Schema<TypeOf<T[number]>>{
+export class UnionSchema<T extends SchemaTuple> extends Schema<
+  TypeOf<T[number]>
+> {
   constructor(public items: T) {
     super()
   }
@@ -10,8 +12,8 @@ export class UnionSchema<T extends SchemaTuple> extends Schema<TypeOf<T[number]>
     for (const item of this.items) {
       try {
         return item.parse(v)
-      } catch { }
+      } catch {}
     }
-    throw new Error("Value does not match any union member")
+    throw new Error('Value does not match any union member')
   }
 }

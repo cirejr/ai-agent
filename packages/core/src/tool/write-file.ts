@@ -1,15 +1,15 @@
 interface WriteFileTypes {
-  path: string;
-  content: string;
+  path: string
+  content: string
 }
 
 export async function writeFile({ path, content }: WriteFileTypes) {
   try {
     if (!path) {
-      return { errorMessage: "No file path was provided, please provide one" };
+      return { errorMessage: 'No file path was provided, please provide one' }
     }
 
-    const file = await Bun.file(path);
+    const file = await Bun.file(path)
 
     await Bun.write(file, content)
 
@@ -17,11 +17,11 @@ export async function writeFile({ path, content }: WriteFileTypes) {
       name: file.name,
       content,
       size: file.size,
-      lastModified: file.lastModified
+      lastModified: file.lastModified,
     }
   } catch (e) {
     return {
-      errorMessage: e instanceof Error ? e.message : "Failed to write a file"
+      errorMessage: e instanceof Error ? e.message : 'Failed to write a file',
     }
   }
 }

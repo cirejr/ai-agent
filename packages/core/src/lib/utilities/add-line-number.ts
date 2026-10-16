@@ -24,11 +24,12 @@ and turn it into string like =>
 // "Combine an array back into a string" => .join()
 // "Then adjust index issues"
 
-
 export function addLineNumber(content: string) {
-  const strToArray = content.split("\n")
-  const numberToLineArray = strToArray.map((line, idx) => `${idx + 1} | ${line}`)
-  const strWithNumber = numberToLineArray.join("\n")
+  const strToArray = content.split('\n')
+  const numberToLineArray = strToArray.map(
+    (line, idx) => `${idx + 1} | ${line}`
+  )
+  const strWithNumber = numberToLineArray.join('\n')
 
   return strWithNumber
 }

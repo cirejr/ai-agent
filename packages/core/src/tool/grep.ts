@@ -1,23 +1,28 @@
-import { $ } from "bun"
-import { parseGrepResult } from "../lib/utilities/parse-grep-result";
+import { $ } from 'bun'
+import { parseGrepResult } from '../lib/utilities/parse-grep-result'
 
-interface GrepTypes{
-  pattern: string;
-  dir: string;
+interface GrepTypes {
+  pattern: string
+  dir: string
 
-  caseSensitive?: boolean;
+  caseSensitive?: boolean
 
   excludeDirs?: string[]
   includeExtensions?: string[]
 }
 
-export async function grep({pattern, dir, caseSensitive=false, excludeDirs, includeExtensions}: GrepTypes) {
+export async function grep({
+  pattern,
+  dir,
+  caseSensitive = false,
+  excludeDirs,
+  includeExtensions,
+}: GrepTypes) {
   try {
-
     let flags = []
 
-    !caseSensitive && flags.push("-i")
-    if(excludeDirs){
+    !caseSensitive && flags.push('-i')
+    if (excludeDirs) {
       for (const dir of excludeDirs) {
         flags.push(`--exclude-dir=${dir}`)
       }
@@ -31,11 +36,10 @@ export async function grep({pattern, dir, caseSensitive=false, excludeDirs, incl
     const results = await $`grep -rn ${flags} ${pattern} ${dir}`.text()
     const matches = parseGrepResult(results)
     return matches
-
   } catch (e) {
     return {
       success: false,
-      errorMessage: e instanceof Error ? e.message : "Failed to run command"
+      errorMessage: e instanceof Error ? e.message : 'Failed to run command',
     }
   }
 }

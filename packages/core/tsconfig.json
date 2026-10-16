@@ -12,7 +12,7 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@/*" : ["./src/*"]
+      "@/*": ["./src/*"]
     },
 
     // Bundler mode
@@ -31,7 +31,7 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
+    "noPropertyAccessFromIndexSignature": false
   },
   "include": ["src/**/*", "../llm"]
 }

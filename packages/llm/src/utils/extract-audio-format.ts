@@ -1,16 +1,17 @@
-import type { InvalidAudioFormat } from "../schema/errors"
-import type { Result } from "../schema/results"
+import type { InvalidAudioFormat } from '../schema/errors'
+import type { Result } from '../schema/results'
 
-
-export function extractAudioFormat(mimeType: string): Result<{format: string}, InvalidAudioFormat> {
+export function extractAudioFormat(
+  mimeType: string
+): Result<{ format: string }, InvalidAudioFormat> {
   const type = mimeType.trim().toLowerCase()
-  if (!type.startsWith("audio/")) {
+  if (!type.startsWith('audio/')) {
     return {
       ok: false,
       error: {
-        _tag: "InvalidAudioFormat",
-        message: "This is not an audio format"
-      }
+        _tag: 'InvalidAudioFormat',
+        message: 'This is not an audio format',
+      },
     }
   }
 
@@ -19,14 +20,14 @@ export function extractAudioFormat(mimeType: string): Result<{format: string}, I
   return {
     ok: true,
     value: {
-      format
-    }
+      format,
+    },
   }
 }
 
 function normalizeFormat(format: string) {
-  if (format == "mpeg") {
-    return "mp3"
+  if (format == 'mpeg') {
+    return 'mp3'
   }
 
   return format

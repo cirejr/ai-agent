@@ -1,10 +1,16 @@
-import { ObjectSchema } from "./core"
-import { ArraySchema } from "./core/collection"
-import { UnionSchema } from "./core/composition"
-import { StringSchema, NumberSchema, BooleanSchema, NullSchema, EnumSchema, LiteralSchema } from "./core/primitives"
-import type { Schema } from "./core/schema"
-import type { SchemaTuple, Enum } from "./core/types"
-
+import { ObjectSchema } from './core'
+import { ArraySchema } from './core/collection'
+import { UnionSchema } from './core/composition'
+import {
+  StringSchema,
+  NumberSchema,
+  BooleanSchema,
+  NullSchema,
+  EnumSchema,
+  LiteralSchema,
+} from './core/primitives'
+import type { Schema } from './core/schema'
+import type { SchemaTuple, Enum } from './core/types'
 
 export class YusraValidator {
   string() {
@@ -31,11 +37,13 @@ export class YusraValidator {
     return new LiteralSchema(input)
   }
 
-  object<TProperties extends Record<string, Schema<any>>>(properties: TProperties) {
+  object<TProperties extends Record<string, Schema<any>>>(
+    properties: TProperties
+  ) {
     return new ObjectSchema(properties)
   }
 
-  enum<const TData extends Enum> (input: TData) {
+  enum<const TData extends Enum>(input: TData) {
     return new EnumSchema(input)
   }
 

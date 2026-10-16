@@ -12,21 +12,14 @@ export type UndefinedType = undefined
 // LITERALS
 // ============================================================
 
-export type StringLiteral = "hello"
+export type StringLiteral = 'hello'
 export type NumberLiteral = 42
 export type TrueLiteral = true
 export type FalseLiteral = false
 
-export type LiteralUnion =
-  | "pending"
-  | "active"
-  | "disabled"
+export type LiteralUnion = 'pending' | 'active' | 'disabled'
 
-export type MixedLiteralUnion =
-  | "hello"
-  | 42
-  | true
-  | null
+export type MixedLiteralUnion = 'hello' | 42 | true | null
 
 // ============================================================
 // OBJECTS
@@ -43,7 +36,7 @@ export type NestedObject = {
     id: string
     profile: {
       name: string
-  }
+    }
   }
 }
 
@@ -73,7 +66,7 @@ export type ComplexOptionalObject = {
   metadata?: {
     createdAt: string
   }
-  role?: "admin" | "user"
+  role?: 'admin' | 'user'
 }
 
 // ============================================================
@@ -118,7 +111,7 @@ export type ObjectArray = SimpleObject[]
 
 export type UnionArray = (string | number)[]
 
-export type LiteralArray = ("admin" | "user")[]
+export type LiteralArray = ('admin' | 'user')[]
 
 export type NestedArray = string[][]
 
@@ -132,17 +125,9 @@ export type ArrayOfTuples = [string, number][]
 
 export type StringOrNumber = string | number
 
-export type PrimitiveUnion =
-  | string
-  | number
-  | boolean
-  | null
+export type PrimitiveUnion = string | number | boolean | null
 
-export type ComplexUnion =
-  | string
-  | number[]
-  | SimpleObject
-  | User
+export type ComplexUnion = string | number[] | SimpleObject | User
 
 export type ObjectUnion =
   | {
@@ -158,40 +143,29 @@ export type ObjectUnion =
 // INTERSECTIONS
 // ============================================================
 
-export type SimpleIntersection =
-  User & Address
+export type SimpleIntersection = User & Address
 
-export type ThreeWayIntersection =
-  User
-  & Address
-  & {
+export type ThreeWayIntersection = User &
+  Address & {
     active: boolean
   }
 
-export type ObjectAndReferenceIntersection =
-  {
-    permissions: string[]
-  }
-  & User
+export type ObjectAndReferenceIntersection = {
+  permissions: string[]
+} & User
 
-export type IntersectionWithUnion =
-  (
-    { success: true }
-    | { success: false }
-  )
-  & {
-    requestId: string
-  }
+export type IntersectionWithUnion = ({ success: true } | { success: false }) & {
+  requestId: string
+}
 
 export type UnionWithIntersection =
-  (User & Address)
+  | (User & Address)
   | {
       error: string
     }
 
-export type NestedIntersection =
-  User
-  & (Address & {
+export type NestedIntersection = User &
+  (Address & {
     active: boolean
   })
 
@@ -201,12 +175,7 @@ export type NestedIntersection =
 
 export type SimpleTuple = [string, number]
 
-export type ComplexTuple = [
-  string,
-  number,
-  boolean,
-  null
-]
+export type ComplexTuple = [string, number, boolean, null]
 
 export type NestedTuple = [
   string,
@@ -214,18 +183,12 @@ export type NestedTuple = [
     id: string
   },
   boolean[],
-  ["nested", number]
+  ['nested', number],
 ]
 
-export type TupleWithUnion = [
-  string | number,
-  boolean
-]
+export type TupleWithUnion = [string | number, boolean]
 
-export type TupleWithArray = [
-  string,
-  number[]
-]
+export type TupleWithArray = [string, number[]]
 
 export type TupleWithObject = [
   {
@@ -233,7 +196,7 @@ export type TupleWithObject = [
   },
   {
     name: string
-  }
+  },
 ]
 
 // ============================================================
@@ -243,19 +206,19 @@ export type TupleWithObject = [
 export enum NumericEnum {
   Pending,
   Active,
-  Disabled
+  Disabled,
 }
 
 export enum ExplicitNumericEnum {
   Pending = 1,
   Active = 2,
-  Disabled = 3
+  Disabled = 3,
 }
 
 export enum StringEnum {
-  Pending = "pending",
-  Active = "active",
-  Disabled = "disabled"
+  Pending = 'pending',
+  Active = 'active',
+  Disabled = 'disabled',
 }
 
 // ============================================================
@@ -312,15 +275,9 @@ export interface Timestamped {
   updatedAt: string
 }
 
-export type Admin =
-  User
-  & Timestamped
-  & {
-    permissions: (
-      "read"
-      | "write"
-      | "delete"
-    )[]
+export type Admin = User &
+  Timestamped & {
+    permissions: ('read' | 'write' | 'delete')[]
   }
 
 export type ApiResponse =
@@ -337,35 +294,25 @@ export type ApiResponse =
     }
 
 export type ComplexComposition =
-  (
-    User
-    & Timestamped
-  )
-  | (
-    Address
-    & {
+  | (User & Timestamped)
+  | (Address & {
       verified: boolean
       tags: string[]
-    }
-  )
+    })
 
 // ============================================================
 // PARENTHESIZED TYPES
 // ============================================================
 
-export type ParenthesizedPrimitive = (string)
+export type ParenthesizedPrimitive = string
 
-export type ParenthesizedUnion =
-  (string | number)
+export type ParenthesizedUnion = string | number
 
-export type ParenthesizedIntersection =
-  (User & Address)
+export type ParenthesizedIntersection = User & Address
 
-export type ParenthesizedArray =
-  (string | number)[]
+export type ParenthesizedArray = (string | number)[]
 
-export type NestedParentheses =
-  ((string | number))
+export type NestedParentheses = string | number
 
 // ============================================================
 // CURRENTLY UNSUPPORTED / FUTURE TESTS

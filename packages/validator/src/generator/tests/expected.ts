@@ -1,57 +1,57 @@
-import type { IR } from "../types";
+import type { IR } from '../types'
 
 export const expected: Record<string, IR[]> = {
   basic: [
     {
-      name: "UserIR",
+      name: 'UserIR',
       type: {
-        kind: "object",
+        kind: 'object',
         properties: {
           id: {
-            kind: "primitive",
-            type: "number",
+            kind: 'primitive',
+            type: 'number',
           },
           name: {
-            kind: "primitive",
-            type: "string",
+            kind: 'primitive',
+            type: 'string',
           },
           active: {
-            kind: "primitive",
-            type: "boolean",
+            kind: 'primitive',
+            type: 'boolean',
           },
           nickname: {
-            kind: "optional",
+            kind: 'optional',
             type: {
-              kind: "primitive",
-              type: "string",
+              kind: 'primitive',
+              type: 'string',
             },
           },
         },
       },
     },
     {
-      name: "UserIdIR",
+      name: 'UserIdIR',
       type: {
-        kind: "primitive",
-        type: "string",
+        kind: 'primitive',
+        type: 'string',
       },
     },
     {
-      name: "StatusIR",
+      name: 'StatusIR',
       type: {
-        kind: "union",
+        kind: 'union',
         types: [
           {
-            kind: "literal",
-            value: "pending",
+            kind: 'literal',
+            value: 'pending',
           },
           {
-            kind: "literal",
-            value: "active",
+            kind: 'literal',
+            value: 'active',
           },
           {
-            kind: "literal",
-            value: "disabled",
+            kind: 'literal',
+            value: 'disabled',
           },
         ],
       },
@@ -60,51 +60,51 @@ export const expected: Record<string, IR[]> = {
 
   complex: [
     {
-      name: "UserIR",
+      name: 'UserIR',
       type: {
-        kind: "object",
+        kind: 'object',
         properties: {
           id: {
-            kind: "primitive",
-            type: "number",
+            kind: 'primitive',
+            type: 'number',
           },
           name: {
-            kind: "primitive",
-            type: "string",
+            kind: 'primitive',
+            type: 'string',
           },
           tags: {
-            kind: "array",
+            kind: 'array',
             items: {
-              kind: "primitive",
-              type: "string",
+              kind: 'primitive',
+              type: 'string',
             },
           },
           metadata: {
-            kind: "object",
+            kind: 'object',
             properties: {
               createdAt: {
-                kind: "primitive",
-                type: "string",
+                kind: 'primitive',
+                type: 'string',
               },
               updatedAt: {
-                kind: "optional",
+                kind: 'optional',
                 type: {
-                  kind: "primitive",
-                  type: "string",
+                  kind: 'primitive',
+                  type: 'string',
                 },
               },
             },
           },
           status: {
-            kind: "union",
+            kind: 'union',
             types: [
               {
-                kind: "literal",
-                value: "active",
+                kind: 'literal',
+                value: 'active',
               },
               {
-                kind: "literal",
-                value: "disabled",
+                kind: 'literal',
+                value: 'disabled',
               },
             ],
           },
@@ -112,36 +112,36 @@ export const expected: Record<string, IR[]> = {
       },
     },
     {
-      name: "SearchResultIR",
+      name: 'SearchResultIR',
       type: {
-        kind: "union",
+        kind: 'union',
         types: [
           {
-            kind: "reference",
-            name: "UserIR",
+            kind: 'reference',
+            name: 'UserIR',
           },
           {
-            kind: "literal",
+            kind: 'literal',
             value: null,
           },
         ],
       },
     },
     {
-      name: "UserWithIdIR",
+      name: 'UserWithIdIR',
       type: {
-        kind: "intersection",
+        kind: 'intersection',
         types: [
           {
-            kind: "reference",
-            name: "UserIR",
+            kind: 'reference',
+            name: 'UserIR',
           },
           {
-            kind: "object",
+            kind: 'object',
             properties: {
               id: {
-                kind: "primitive",
-                type: "number",
+                kind: 'primitive',
+                type: 'number',
               },
             },
           },
@@ -149,50 +149,50 @@ export const expected: Record<string, IR[]> = {
       },
     },
     {
-      name: "CoordinatesIR",
+      name: 'CoordinatesIR',
       type: {
-        kind: "tuple",
+        kind: 'tuple',
         elements: [
           {
-            kind: "primitive",
-            type: "number",
+            kind: 'primitive',
+            type: 'number',
           },
           {
-            kind: "primitive",
-            type: "number",
+            kind: 'primitive',
+            type: 'number',
           },
         ],
       },
     },
     {
-      name: "MatrixIR",
+      name: 'MatrixIR',
       type: {
-        kind: "array",
+        kind: 'array',
         items: {
-          kind: "array",
+          kind: 'array',
           items: {
-            kind: "primitive",
-            type: "number",
+            kind: 'primitive',
+            type: 'number',
           },
         },
       },
     },
     {
-      name: "MixedTupleIR",
+      name: 'MixedTupleIR',
       type: {
-        kind: "tuple",
+        kind: 'tuple',
         elements: [
           {
-            kind: "primitive",
-            type: "string",
+            kind: 'primitive',
+            type: 'string',
           },
           {
-            kind: "primitive",
-            type: "number",
+            kind: 'primitive',
+            type: 'number',
           },
           {
-            kind: "primitive",
-            type: "boolean",
+            kind: 'primitive',
+            type: 'boolean',
           },
         ],
       },
@@ -201,65 +201,65 @@ export const expected: Record<string, IR[]> = {
 
   enums: [
     {
-      name: "StatusIR",
+      name: 'StatusIR',
       type: {
-        kind: "enum",
+        kind: 'enum',
         members: [
           {
-            name: "Pending",
+            name: 'Pending',
             value: 0,
           },
           {
-            name: "Active",
+            name: 'Active',
             value: 1,
           },
           {
-            name: "Disabled",
+            name: 'Disabled',
             value: 2,
           },
         ],
       },
     },
     {
-      name: "HttpStatusIR",
+      name: 'HttpStatusIR',
       type: {
-        kind: "enum",
+        kind: 'enum',
         members: [
           {
-            name: "Ok",
+            name: 'Ok',
             value: 200,
           },
           {
-            name: "BadRequest",
+            name: 'BadRequest',
             value: 400,
           },
           {
-            name: "Unauthorized",
+            name: 'Unauthorized',
             value: 401,
           },
           {
-            name: "NotFound",
+            name: 'NotFound',
             value: 404,
           },
         ],
       },
     },
     {
-      name: "RoleIR",
+      name: 'RoleIR',
       type: {
-        kind: "enum",
+        kind: 'enum',
         members: [
           {
-            name: "Admin",
-            value: "admin",
+            name: 'Admin',
+            value: 'admin',
           },
           {
-            name: "User",
-            value: "user",
+            name: 'User',
+            value: 'user',
           },
           {
-            name: "Guest",
-            value: "guest",
+            name: 'Guest',
+            value: 'guest',
           },
         ],
       },
@@ -268,45 +268,45 @@ export const expected: Record<string, IR[]> = {
 
   references: [
     {
-      name: "UserIdIR",
+      name: 'UserIdIR',
       type: {
-        kind: "primitive",
-        type: "string",
+        kind: 'primitive',
+        type: 'string',
       },
     },
     {
-      name: "UserIR",
+      name: 'UserIR',
       type: {
-        kind: "object",
+        kind: 'object',
         properties: {
           id: {
-            kind: "reference",
-            name: "UserIdIR",
+            kind: 'reference',
+            name: 'UserIdIR',
           },
           name: {
-            kind: "primitive",
-            type: "string",
+            kind: 'primitive',
+            type: 'string',
           },
         },
       },
     },
     {
-      name: "AdminIR",
+      name: 'AdminIR',
       type: {
-        kind: "intersection",
+        kind: 'intersection',
         types: [
           {
-            kind: "reference",
-            name: "UserIR",
+            kind: 'reference',
+            name: 'UserIR',
           },
           {
-            kind: "object",
+            kind: 'object',
             properties: {
               permissions: {
-                kind: "array",
+                kind: 'array',
                 items: {
-                  kind: "primitive",
-                  type: "string",
+                  kind: 'primitive',
+                  type: 'string',
                 },
               },
             },
@@ -318,23 +318,23 @@ export const expected: Record<string, IR[]> = {
 
   nested: [
     {
-      name: "UserIR",
+      name: 'UserIR',
       type: {
-        kind: "object",
+        kind: 'object',
         properties: {
           id: {
-            kind: "primitive",
-            type: "number",
+            kind: 'primitive',
+            type: 'number',
           },
         },
       },
     },
     {
-      name: "UserIdIR",
+      name: 'UserIdIR',
       type: {
-        kind: "primitive",
-        type: "string",
+        kind: 'primitive',
+        type: 'string',
       },
     },
   ],
-};
+}

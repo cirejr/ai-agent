@@ -2,11 +2,30 @@
   "name": "erwin-ai",
   "version": "0.1.0",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier . --check",
+    "test": "bun test",
+    "build": "tsc",
+    "prepare": "husky",
+    "verify": "bun run typecheck && bun run format:check && bun run lint && bun run test && bun run build"
   },
-  "workspaces": ["packages/*"],
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tsconfig/bun": "^1.0.10",
-    "@types/bun": "^1.3.14"
+    "@types/bun": "^1.3.14",
+    "eslint": "^10.13.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "typescript": "^6",
+    "typescript-eslint": "^8.71.2"
   }
 }

@@ -7,4 +7,4 @@ export interface User {
 
 export type UserId = string
 
-export type Status = "pending" | "active" | "disabled"
+export type Status = 'pending' | 'active' | 'disabled'

@@ -1,124 +1,132 @@
-import { files } from "./files";
-import { expected } from "./tests/expected";
-import { typescriptToIR } from "./ts-to-ir";
-import type { IR, IRNode, LiteralNode } from "./types";
-import prettier from "prettier"
+import { files } from './files'
+import { expected } from './tests/expected'
+import { typescriptToIR } from './ts-to-ir'
+import type { IR, IRNode, LiteralNode } from './types'
+import prettier from 'prettier'
 
 export async function generateFile(files: string[], options = {}) {
   const fileImports = typescriptToIR(files, options)
   for (const fileIR of fileImports) {
-
     const declarations = generateDeclaration(fileIR.ir)
-    const imports = fileIR.imports.map(i => `import { ${i.importedName !== i.localName ? `${i.importedName.concat("Schema")} as ${i.localName.concat("Schema")}` : i.localName.concat("Schema")} } from "${i.from.concat(".schema")}"`)
-    console.log("imports", fileIR.file)
+    const imports = fileIR.imports.map(
+      (i) =>
+        `import { ${i.importedName !== i.localName ? `${i.importedName.concat('Schema')} as ${i.localName.concat('Schema')}` : i.localName.concat('Schema')} } from "${i.from.concat('.schema')}"`
+    )
+    console.log('imports', fileIR.file)
 
-    if (fileIR.ir.find(i => i.typeParameters !== undefined)) {
+    if (fileIR.ir.find((i) => i.typeParameters !== undefined)) {
       imports.push(`import type { Schema } from "../../core";`)
     }
 
-  const fileContent = [
-    `import { yus } from "../yusra"; `,
-    ...imports,
-    "\n",
-    ...declarations
-    ].join("\n")
+    const fileContent = [
+      `import { yus } from "../yusra"; `,
+      ...imports,
+      '\n',
+      ...declarations,
+    ].join('\n')
 
     const formatted = await prettier.format(fileContent, {
-      parser: "typescript",
+      parser: 'typescript',
     })
-    await Bun.write(`${fileIR.file.replace(".ts", ".schema.ts")}`, formatted)
+    await Bun.write(`${fileIR.file.replace('.ts', '.schema.ts')}`, formatted)
   }
 }
 
 export function generateDeclaration(ir: IR[]) {
-  return ir.map(item => (
-    item.typeParameters ?
-      `export const ${item.name.replace("IR", "Schema")} = ${item.typeParameters !== undefined ? `<${item.typeParameters?.map(t => `${t.name }${t.constraintText ? ` extends ${t.constraintText}` : ""} ${t.defaultText ? `=${t.defaultText}` : ""}`).join(",")}> (
-      ${item.typeParameters.map(t => `${t.name}: Schema<${t.name}>`).join(", \n")}
-      ) ` : ""} => ${toSchema(item.type)}` :
-      `export const ${item.type.kind == "reference" && item.type.brand ? item.name.replace(/IR$/, "") : item.name.replace(/IR$/, "Schema")} = ${toSchema(item.type)}`
-  ))
+  return ir.map((item) =>
+    item.typeParameters
+      ? `export const ${item.name.replace('IR', 'Schema')} = ${
+          item.typeParameters !== undefined
+            ? `<${item.typeParameters?.map((t) => `${t.name}${t.constraintText ? ` extends ${t.constraintText}` : ''} ${t.defaultText ? `=${t.defaultText}` : ''}`).join(',')}> (
+      ${item.typeParameters.map((t) => `${t.name}: Schema<${t.name}>`).join(', \n')}
+      ) `
+            : ''
+        } => ${toSchema(item.type)}`
+      : `export const ${item.type.kind == 'reference' && item.type.brand ? item.name.replace(/IR$/, '') : item.name.replace(/IR$/, 'Schema')} = ${toSchema(item.type)}`
+  )
 }
 
 export function toSchema(node: IRNode): string {
   switch (node.kind) {
-    case "primitive": {
+    case 'primitive': {
       return `yus.${node.type}()`
     }
-    case "literal": {
+    case 'literal': {
       return `yus.literal(${JSON.stringify(node.value)})`
     }
 
-    case "union": {
-      return `yus.union([${node.types.map(toSchema).join(", ")}])`
+    case 'union': {
+      return `yus.union([${node.types.map(toSchema).join(', ')}])`
     }
 
-    case "enum": {
-      return `yus.enum([${node.members.map(member => member.name)}])`
+    case 'enum': {
+      return `yus.enum([${node.members.map((member) => member.name)}])`
     }
 
-    case "array": {
+    case 'array': {
       return `yus.array(${toSchema(node.items)})`
     }
 
-    case "optional": {
+    case 'optional': {
       return `${toSchema(node.type)}.optional()`
     }
 
-    case "object": {
-      const properties = Object.entries(node.properties).map(([name, type]) => {
-        return `${name}: ${toSchema(type)}`
-      }).join(", ")
+    case 'object': {
+      const properties = Object.entries(node.properties)
+        .map(([name, type]) => {
+          return `${name}: ${toSchema(type)}`
+        })
+        .join(', ')
       return `yus.object({ ${properties} })`
     }
 
-    case "reference": {
+    case 'reference': {
       if (node.brand) {
         return `${toSchema(node.brand.baseType)}.brand<"${(node.brand.marker as LiteralNode).value}">()`
       }
 
       if (node.isBranded) {
-        return node.name.replace(/IR$/, "")
+        return node.name.replace(/IR$/, '')
       }
 
       if (node.typeArguments) {
-        return `${node.name.replace(/IR$/, "Schema")}(${node.typeArguments.map(t => toSchema(t)).join(", ")})`
+        return `${node.name.replace(/IR$/, 'Schema')}(${node.typeArguments.map((t) => toSchema(t)).join(', ')})`
       }
 
-      return node.name.replace(/IR$/, "Schema")
+      return node.name.replace(/IR$/, 'Schema')
     }
 
-    case "intersection": {
-      const schemas = node.types.map( item => toSchema(item)).join(", ")
+    case 'intersection': {
+      const schemas = node.types.map((item) => toSchema(item)).join(', ')
       return `yus.intersection(${schemas})`
     }
 
-    case "tuple": {
-      return `yus.tuple([${node.elements.map(toSchema).join(", ")}])`
+    case 'tuple': {
+      return `yus.tuple([${node.elements.map(toSchema).join(', ')}])`
     }
 
-    case "typeParameter": {
+    case 'typeParameter': {
       return node.name
     }
 
-    case "any": {
+    case 'any': {
       return `yus.any()`
     }
 
-    case "unknown": {
+    case 'unknown': {
       return `yus.unknown()`
     }
 
-    case "record": {
+    case 'record': {
       return `yus.record(${toSchema(node.key)}, ${toSchema(node.value)})`
     }
 
-    case "map": {
+    case 'map': {
       return `yus.map(${toSchema(node.key)}, ${toSchema(node.value)})`
     }
 
-    case "builtin": {
-      const args = node.typeArguments?.map(toSchema).join(", ")
+    case 'builtin': {
+      const args = node.typeArguments?.map(toSchema).join(', ')
       return args
         ? `yus.instanceOf<${args}>(${node.name})`
         : `yus.instanceOf(${node.name})`
@@ -164,11 +172,12 @@ const result = generateDeclaration(expected.complex)
   }
 } */
 
-await generateFile([
-  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/errors.ts",
-  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/results.ts",
-  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/model.ts",
-  "/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts",
+await generateFile(
+  [
+    '/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/errors.ts',
+    '/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/results.ts',
+    '/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/model.ts',
+    '/home/cirejr/work/personel/ai-agent/packages/llm/src/schema/messages.ts',
   ]
   //files
 )
