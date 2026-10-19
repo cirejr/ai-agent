@@ -1,4 +1,4 @@
-import { tool } from 'ai'
+import { tool, type ToolSet } from 'ai'
 import z from 'zod'
 
 import { grep } from './grep'
@@ -7,7 +7,7 @@ import { editFile } from './edit-file'
 import { glob } from './glob'
 import { bash } from './bash'
 
-export const tools = {
+export const tools: ToolSet = {
   grep: tool({
     description: 'Get a piece of content inside a file',
     inputSchema: z.object({

@@ -7,8 +7,6 @@ export type ValidateMedia = {
   base64: string
 }
 
-export * as ValidateMedia from './validate-media'
-
 export function validateMedia(
   mimeType: string,
   fileData: string | Uint8Array,

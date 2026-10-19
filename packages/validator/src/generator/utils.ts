@@ -14,7 +14,6 @@ import type {
   RecordNode,
   BuiltInNode,
   MapNode,
-  BrandNode,
 } from './types'
 import { builtins } from './constants'
 
@@ -22,7 +21,7 @@ export function convertEnum(
   members: ts.NodeArray<ts.EnumMember>,
   checker: ts.TypeChecker
 ) {
-  let types = []
+  const types = []
   for (const member of members) {
     const value = checker.getConstantValue(member)
     if (value == undefined) {
@@ -62,7 +61,7 @@ export function convertType(
   }
 
   if (ts.isIntersectionTypeNode(typeNode)) {
-    let types = []
+    const types = []
     for (const type of typeNode.types) {
       types.push(convertType(type, checker))
     }
@@ -73,7 +72,7 @@ export function convertType(
   }
 
   if (ts.isTupleTypeNode(typeNode)) {
-    let elements = []
+    const elements = []
     for (const el of typeNode.elements) {
       elements.push(convertType(el, checker))
     }
@@ -137,7 +136,7 @@ export function convertType(
   }
 
   if (ts.isUnionTypeNode(typeNode)) {
-    let types = []
+    const types = []
     for (const type of typeNode.types) {
       const schemaNode = convertType(type, checker)
       types.push(schemaNode)
@@ -301,7 +300,7 @@ export function toPrimitiveNode(
     }
   }
 
-  console.error(`Unsupported type: ${ts.SyntaxKind[typeNode.kind]} `)
+  throw new Error(`Unsupported type: ${ts.SyntaxKind[typeNode.kind]} `)
 }
 
 export function convertDeclarations(
@@ -391,7 +390,7 @@ export function isBrandDeclaration(
   checker: ts.TypeChecker
 ) {
   const type = declaration.type
-  let result = {
+  const result = {
     isBrand: false,
     brandMarker: {} as IRNode,
     baseType: {} as IRNode,

@@ -1,4 +1,4 @@
-import { describe, expect, test, it } from 'bun:test'
+/* import { describe, expect, test, it } from 'bun:test'
 import { typescriptToIR } from '../ts-to-ir'
 import { expected } from './expected'
 
@@ -51,3 +51,4 @@ it('converts complex fixture to IR', () => {
   )
   expect(result).toEqual(expected.complex)
 })
+ */

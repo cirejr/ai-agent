@@ -13,12 +13,12 @@ test('accepts string declaration with const', () => {
 })
 
 test('accepts string declaration with let', () => {
-  let str: string = 'const'
+  const str: string = 'const'
   expect(literalSchema.parse(str)).toBe('const')
 })
 
 test('accepts string declaration with var', () => {
-  let str: string = 'const'
+  const str: string = 'const'
   expect(literalSchema.parse(str)).toBe('const')
 })
 

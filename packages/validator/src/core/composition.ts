@@ -12,7 +12,9 @@ export class UnionSchema<T extends SchemaTuple> extends Schema<
     for (const item of this.items) {
       try {
         return item.parse(v)
-      } catch {}
+      } catch {
+        // Expected: this union member may not match. Try the next one.
+      }
     }
     throw new Error('Value does not match any union member')
   }

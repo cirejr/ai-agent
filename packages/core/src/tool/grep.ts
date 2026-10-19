@@ -19,9 +19,9 @@ export async function grep({
   includeExtensions,
 }: GrepTypes) {
   try {
-    let flags = []
+    const flags = []
 
-    !caseSensitive && flags.push('-i')
+    if (!caseSensitive) flags.push('-i')
     if (excludeDirs) {
       for (const dir of excludeDirs) {
         flags.push(`--exclude-dir=${dir}`)

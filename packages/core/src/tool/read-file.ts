@@ -1,4 +1,4 @@
-import { addLineNumber } from '@/lib/utilities/add-line-number'
+import { addLineNumber } from '../lib/utilities/add-line-number'
 
 export async function readFile(filePath: string) {
   try {

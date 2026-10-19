@@ -7,7 +7,7 @@ import { grep } from './tool/grep'
 import { bash } from './tool/bash'
 import { registry } from './registry/tool-registry'
 import z from 'zod'
-import type { AnyToolDescriptor, ToolDescriptor } from '@erwin/schema'
+import type { AnyToolDescriptor, ToolDescriptor } from '@erwin-ai/schema'
 
 /*
 const files = (await fileSearch({
@@ -156,11 +156,6 @@ const dataO = {
   age: 25,
 }
 
-const SchemaOfData0 = object({
-  name: StringSchema,
-  age: NumberSchema,
-})
-
 /* for (const [k, v] of data.entries()) {
   console.log("array item's entry :", [k, v])
   console.log("typeof v:", typeof v)
@@ -169,5 +164,5 @@ const SchemaOfData0 = object({
 
 for (const k of Object.keys(dataO)) {
   console.log("object item's entry :", k)
-  console.log(dataO[k])
+  //console.log(dataO[k])
 }

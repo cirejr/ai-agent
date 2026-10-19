@@ -3,6 +3,9 @@
   "name": "@erwin-ai/schema",
   "private": true,
   "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts"

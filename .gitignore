@@ -1,13 +1,39 @@
-# deps
+# Dependencies
 node_modules/
 
-# env
+# Environment variables and secrets
 .env
 .env.*
+!.env.example
 
-# experimental files
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Coverage
+coverage/
+
+# Logs
+*.log
+bun-debug.log*
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.bak
+
+# Local experiments
 src/experiments/file-search.ts
 src/experiments/new-file-search.ts
 src/experiments/new-file-search-02.ts
 
+# Local session files
 session-ses_0457.md

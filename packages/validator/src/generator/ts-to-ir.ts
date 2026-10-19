@@ -7,7 +7,7 @@ export function typescriptToIR(
   files: string[],
   options: ts.CompilerOptions
 ): FileImport[] {
-  let program = ts.createProgram(files, options)
+  const program = ts.createProgram(files, options)
   const checker = program.getTypeChecker()
   const importFiles: FileImport[] = []
 

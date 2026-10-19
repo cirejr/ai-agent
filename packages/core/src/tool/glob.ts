@@ -2,7 +2,7 @@ import { Glob } from 'bun'
 
 export async function glob(pattern: string) {
   try {
-    let filesPaths = []
+    const filesPaths = []
 
     const globInstance = new Glob(pattern)
 

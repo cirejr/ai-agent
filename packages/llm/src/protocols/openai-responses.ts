@@ -7,7 +7,6 @@ import {
   type LLMRequest,
   type LLMResponse,
   type Message,
-  type MessageHistory,
   type ReasoningPart,
   type Result,
   type SystemMessage,
@@ -355,12 +354,14 @@ export function toProviderInput(
               }
               switch (category) {
                 case 'image':
-                  const image: ResponseInputImage = {
-                    type: 'input_image',
-                    detail: 'original',
-                    image_url: validated.value.dataUrl,
+                  {
+                    const image = {
+                      type: 'input_image',
+                      detail: 'original',
+                      image_url: validated.value.dataUrl,
+                    } satisfies ResponseInputImage
+                    content.push(image)
                   }
-                  content.push(image)
                   break
                 case 'file': {
                   const file: ResponseInputFile = {
@@ -419,7 +420,7 @@ export function toProviderInput(
           AssistantInput | ToolInput | ReasoningOutputInput
         >((part) => {
           switch (part.type) {
-            case 'text':
+            case 'text': {
               //console.log('assistant message received', message)
               const textPart: AssistantInput = {
                 type: 'message',
@@ -434,7 +435,8 @@ export function toProviderInput(
                 ],
               }
               return textPart
-            case 'tool-call':
+            }
+            case 'tool-call': {
               const toolCall: ToolInput = {
                 type: 'function_call',
                 id: part.id,
@@ -444,7 +446,8 @@ export function toProviderInput(
               }
 
               return toolCall
-            case 'reasoning':
+            }
+            case 'reasoning': {
               const reasoningPart: ReasoningOutputInput = {
                 type: 'reasoning',
                 id: part.id,
@@ -463,6 +466,7 @@ export function toProviderInput(
                 ],
               }
               return reasoningPart
+            }
           }
         })
 

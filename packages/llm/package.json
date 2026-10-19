@@ -3,6 +3,9 @@
   "name": "@erwin-ai/llm",
   "private": true,
   "version": "0.1.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
   "type": "module",
   "exports": {
     ".": "./src/index.ts",

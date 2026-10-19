@@ -1,4 +1,4 @@
-import type { AnyToolDescriptor } from '@erwin/schema'
+import type { AnyToolDescriptor } from '@erwin-ai/schema'
 
 const registryMap = new Map<string, AnyToolDescriptor>()
 

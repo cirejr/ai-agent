@@ -7,9 +7,14 @@
     "target": "ES2023",
     "lib": ["ES2023"],
     "moduleResolution": "bundler",
-    "module": "es2022",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
+    "module": "es2022"
+  },
+  "files": [],
+  "references": [
+    { "path": "./packages/validator/tsconfig.build.json" },
+    { "path": "./packages/schema/tsconfig.build.json" },
+    { "path": "./packages/llm/tsconfig.build.json" },
+    { "path": "./packages/core/tsconfig.build.json" },
+    { "path": "./packages/server/tsconfig.build.json" }
+  ]
 }

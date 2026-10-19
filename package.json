@@ -4,11 +4,11 @@
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun run --filter '@erwin-ai/*' typecheck",
     "format": "prettier --write .",
     "format:check": "prettier . --check",
     "test": "bun test",
-    "build": "tsc",
+    "build": "tsc -b",
     "prepare": "husky",
     "verify": "bun run typecheck && bun run format:check && bun run lint && bun run test && bun run build"
   },
