@@ -12,6 +12,7 @@ export default defineConfig([
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
     },
+    ignores: ['**/dist/**'],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,

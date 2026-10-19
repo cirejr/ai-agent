@@ -12,12 +12,11 @@
     "./*": "./src/*"
   },
   "dependencies": {
-    "zod": "^4.4.3",
     "@ai-sdk/google": "^4.0.31",
+    "@erwin-ai/schema": "workspace:*",
     "@openrouter/ai-sdk-provider": "^3.0.0",
     "ai": "^7.0.47",
-    "@erwin-ai/schema": "workspace:*",
-    "@erwin-ai/llm": "workspace:*"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14"

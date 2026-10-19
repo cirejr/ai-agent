@@ -1,21 +1,17 @@
 {
-  "$schema": "https://www.schemastore.org/tsconfig",
   "name": "@erwin-ai/llm",
-  "private": true,
   "version": "0.1.0",
-  "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+  "devDependencies": {
+    "@types/bun": "^1.3.14"
   },
-  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*"
   },
-  "dependencies": {
-    "@erwin-ai/schema": "workspace:*",
-    "@erwin-ai/validator": "workspace:*"
+  "$schema": "https://www.schemastore.org/tsconfig",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "devDependencies": {
-    "@types/bun": "^1.3.14"
-  }
+  "type": "module"
 }
